@@ -37,7 +37,6 @@ class Player {
     this.element.style.top = `${this.top}px`;
   }
 
-  // bullet spawn point
   shoot() {
     const bulletLeft = this.left + this.width / 2 - 3;
     const bulletTop = this.top - 10;

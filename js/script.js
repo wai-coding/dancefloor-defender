@@ -4,6 +4,7 @@ window.onload = function () {
   const MUSIC_GAMEOVER_VOLUME = 0.12;
   const MUSIC_MUTE_LS_KEY = "dancefloor_defender_music_muted";
   const SFX_MUTE_LS_KEY = "dancefloor_defender_sfx_muted";
+  const THEME_LS_KEY = "dancefloor_defender_theme";
 
   let ourGame = null;
 
@@ -35,7 +36,7 @@ window.onload = function () {
   const LIGHT_BG = "./images/background-light.png";
   const DARK_BG = "./images/background-dark.png";
 
-  let isDarkMode = false;
+  let isDarkMode = localStorage.getItem(THEME_LS_KEY) === "dark";
 
   function applyTheme() {
     const bgUrl = isDarkMode ? `url("${DARK_BG}")` : `url("${LIGHT_BG}")`;
@@ -43,6 +44,8 @@ window.onload = function () {
     if (introGameArea) introGameArea.style.backgroundImage = bgUrl;
     if (gameScreenElement) gameScreenElement.style.backgroundImage = bgUrl;
     if (endGameArea) endGameArea.style.backgroundImage = bgUrl;
+
+    localStorage.setItem(THEME_LS_KEY, isDarkMode ? "dark" : "light");
 
     if (themeButton) {
       themeButton.textContent = isDarkMode
@@ -72,7 +75,7 @@ window.onload = function () {
   const enemyHitSound = new Audio("./assets/enemy-hit.wav");
   enemyHitSound.volume = SFX_VOLUME;
 
-  // ── SFX manager: pre-loaded Audio objects, mute-aware ──
+  // SFX
   const loseLifeSound = new Audio("./assets/lose-life.wav");
   loseLifeSound.volume = SFX_VOLUME;
 
@@ -85,7 +88,7 @@ window.onload = function () {
   const highScoreSound = new Audio("./assets/high-score.wav");
   highScoreSound.volume = SFX_VOLUME;
 
-  /** Play a named SFX once, respecting mute. Resets currentTime for rapid retrigger. */
+  // Play SFX once, respects mute
   function playSfx(sound) {
     if (isSfxMuted) return;
     try {
@@ -128,10 +131,10 @@ window.onload = function () {
     } catch (e) {}
   }
 
-  // expose globally for game.js
+  // expose for game.js
   window.playEnemyHitSound = playEnemyHitSound;
 
-  // ── Music ducking while important SFX plays ──
+  // Music ducking
   const DUCK_VOLUME = 0.10;       // bgMusic volume while SFX is playing
   let activeDuckCount = 0;        // track overlapping ducks
 
@@ -162,7 +165,7 @@ window.onload = function () {
     }, fallbackMs);
   }
 
-  // expose SFX for game.js (B, C, D, E)
+  // expose SFX for game.js
   window.playLoseLifeSound  = function () { playSfx(loseLifeSound); };
   window.playGameOverSound  = function () {
     duckMusicWhile(gameOverSound);
@@ -173,8 +176,6 @@ window.onload = function () {
     duckMusicWhile(highScoreSound);
     playSfx(highScoreSound);
   };
-  window.playHeartPickupSound = function () { playSfx(nextLevelSound); };
-
   window.onGameOver = function () {
     if (!isMusicMuted) {
       fadeAudio(bgMusic, MUSIC_GAMEOVER_VOLUME, 400);
@@ -218,7 +219,7 @@ window.onload = function () {
 
   updatePauseMuteUI();
 
-  // ── Start menu sub-panel navigation ──
+  // Start menu navigation
   const startMainMenu = document.getElementById("start-main-menu");
   const startOptionsPanel = document.getElementById("start-options-panel");
   const startHighscoresPanel = document.getElementById("start-highscores-panel");
@@ -314,7 +315,6 @@ window.onload = function () {
     });
   }
 
-  // Start Options panel — mute music button
   if (startMuteMusicBtn) {
     startMuteMusicBtn.addEventListener("click", function () {
       isMusicMuted = !isMusicMuted;
@@ -332,7 +332,6 @@ window.onload = function () {
     });
   }
 
-  // Start Options panel — mute sounds button
   if (startMuteSoundsBtn) {
     startMuteSoundsBtn.addEventListener("click", function () {
       isSfxMuted = !isSfxMuted;
@@ -343,7 +342,6 @@ window.onload = function () {
     });
   }
 
-  // Start Options panel — theme button
   if (startThemeBtn) {
     startThemeBtn.addEventListener("click", function () {
       isDarkMode = !isDarkMode;
@@ -353,7 +351,8 @@ window.onload = function () {
     });
   }
 
-  // Back buttons (all use data-back attribute)
+  updateStartThemeUI();
+  updateStartMuteUI();
   document.querySelectorAll(".start-back-btn").forEach(function (btn) {
     btn.addEventListener("click", function () {
       showStartMainMenu();
@@ -492,18 +491,17 @@ window.onload = function () {
     });
   }
 
-  // ── Input state tracking for fluid movement + shooting ──
+  // Input state
   const keysPressed = {};
   let lastDirectionKey = null;
   const SHOOT_COOLDOWN = 150;
   let lastShotTime = 0;
 
   window.addEventListener("keydown", function (event) {
-    // ── Skip global hotkeys when typing in an input ──
     const tag = document.activeElement && document.activeElement.tagName;
     const isTyping = tag === "INPUT" || tag === "TEXTAREA";
 
-    // ── Global hotkeys (work on ALL screens, except when typing) ──
+    // Global hotkeys
     if (!isTyping && event.code === "KeyM") {
       var allMuted = isMusicMuted && isSfxMuted;
       isMusicMuted = !allMuted;
@@ -531,7 +529,7 @@ window.onload = function () {
       return;
     }
 
-    // ── Game-specific controls below ──
+    // Game controls
     if (!ourGame || !ourGame.player) return;
 
     if (event.code === "KeyP") {
@@ -539,7 +537,6 @@ window.onload = function () {
       return;
     }
 
-    // Track key state for movement and shooting
     if (event.code === "ArrowLeft" || event.code === "ArrowRight" || event.code === "Space") {
       keysPressed[event.code] = true;
       if (event.code === "ArrowLeft" || event.code === "ArrowRight") {
@@ -563,15 +560,80 @@ window.onload = function () {
     keysPressed["Space"] = false;
   });
 
+  // Touch input
+  var touchLeftPressed = false;
+  var touchRightPressed = false;
+  var touchShootPressed = false;
+  var lastTouchDirection = null;
+  var activePointers = {};
+
+  function recalcTouchState() {
+    touchLeftPressed = false;
+    touchRightPressed = false;
+    touchShootPressed = false;
+    for (var id in activePointers) {
+      if (activePointers[id] === "left") touchLeftPressed = true;
+      if (activePointers[id] === "right") touchRightPressed = true;
+      if (activePointers[id] === "shoot") touchShootPressed = true;
+    }
+  }
+
+  if (gameScreenElement) {
+    gameScreenElement.addEventListener("pointerdown", function (event) {
+      if (event.pointerType === "mouse") return;
+      if (!ourGame || !ourGame.player) return;
+      if (ourGame.isPaused || ourGame.gameIsOver) return;
+      if (event.target.closest("#pause-menu-button") || event.target.closest("#pause-overlay")) return;
+
+      event.preventDefault();
+      gameScreenElement.setPointerCapture(event.pointerId);
+
+      var rect = gameScreenElement.getBoundingClientRect();
+      var relativeX = event.clientX - rect.left;
+      var third = rect.width / 3;
+      var zone;
+
+      if (relativeX < third) {
+        zone = "left";
+        touchLeftPressed = true;
+        lastTouchDirection = "left";
+      } else if (relativeX > 2 * third) {
+        zone = "right";
+        touchRightPressed = true;
+        lastTouchDirection = "right";
+      } else {
+        zone = "shoot";
+        touchShootPressed = true;
+      }
+
+      activePointers[event.pointerId] = zone;
+    });
+
+    function handlePointerRelease(event) {
+      if (event.pointerType === "mouse") return;
+      try { gameScreenElement.releasePointerCapture(event.pointerId); } catch (e) {}
+      delete activePointers[event.pointerId];
+      recalcTouchState();
+    }
+
+    gameScreenElement.addEventListener("pointerup", handlePointerRelease);
+    gameScreenElement.addEventListener("pointercancel", handlePointerRelease);
+    gameScreenElement.addEventListener("pointerleave", handlePointerRelease);
+  }
+
   window.processInput = function () {
     if (!ourGame || !ourGame.player) return;
     if (ourGame.isPaused || ourGame.gameIsOver) return;
 
-    var left = keysPressed["ArrowLeft"];
-    var right = keysPressed["ArrowRight"];
+    var left = keysPressed["ArrowLeft"] || touchLeftPressed;
+    var right = keysPressed["ArrowRight"] || touchRightPressed;
 
     if (left && right) {
-      ourGame.player.speedX = lastDirectionKey === "ArrowLeft" ? -5 : 5;
+      if (touchLeftPressed && touchRightPressed) {
+        ourGame.player.speedX = lastTouchDirection === "left" ? -5 : 5;
+      } else {
+        ourGame.player.speedX = lastDirectionKey === "ArrowLeft" ? -5 : 5;
+      }
     } else if (left) {
       ourGame.player.speedX = -5;
     } else if (right) {
@@ -580,7 +642,7 @@ window.onload = function () {
       ourGame.player.speedX = 0;
     }
 
-    if (keysPressed["Space"]) {
+    if (keysPressed["Space"] || touchShootPressed) {
       var now = performance.now();
       if (now - lastShotTime >= SHOOT_COOLDOWN) {
         lastShotTime = now;
@@ -598,42 +660,4 @@ window.onload = function () {
       }
     }
   };
-
-  // touch controls
-  if (gameScreenElement) {
-    gameScreenElement.addEventListener("touchstart", function (event) {
-      if (!ourGame || !ourGame.player) return;
-      if (ourGame.isPaused || ourGame.gameIsOver) return;
-
-      const touch = event.touches[0];
-      const rect = gameScreenElement.getBoundingClientRect();
-
-      const relativeX = touch.clientX - rect.left;
-      const third = rect.width / 3;
-
-      if (relativeX < third) {
-        ourGame.player.speedX = -5;
-      } else if (relativeX > 2 * third) {
-        ourGame.player.speedX = 5;
-      } else {
-        const bulletLeft = ourGame.player.left + ourGame.player.width / 2 - 3;
-        const bulletTop = ourGame.player.top - 10;
-
-        const newBullet = new Bullet(ourGame.gameScreen, bulletLeft, bulletTop);
-        ourGame.bullets.push(newBullet);
-
-        if (!isSfxMuted) {
-          try {
-            shootSound.currentTime = 0;
-            shootSound.play();
-          } catch (e) {}
-        }
-      }
-    });
-
-    gameScreenElement.addEventListener("touchend", function (event) {
-      if (!ourGame || !ourGame.player) return;
-      ourGame.player.speedX = 0;
-    });
-  }
 };

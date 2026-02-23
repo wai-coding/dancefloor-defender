@@ -67,7 +67,6 @@ class Enemy {
     this.element.style.top = `${this.top}px`;
   }
 
-  // Check collision with the player
   didCollide(player) {
     const enemyRect = this.element.getBoundingClientRect();
     const playerRect = player.element.getBoundingClientRect();

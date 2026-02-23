@@ -30,9 +30,6 @@ class Game {
     this.scoreElement = document.getElementById("score");
     this.finalScoreElement = document.getElementById("final-score");
 
-    this.bestScoreElement = document.getElementById("best-score");
-    this.bestScoreEndElement = document.getElementById("best-score-end");
-
     this.highScoreContainer = document.getElementById("high-scores");
 
     this.level = 1;
@@ -69,8 +66,6 @@ class Game {
 
     this.width = 500;
     this.height = 600;
-
-    this.updateBestScoreDisplay();
   }
 
   showScreen(screen, displayMode) {
@@ -114,7 +109,7 @@ class Game {
     );
   }
 
-  // ── Overlay queue system ──
+  // Overlay queue
 
   queueOverlay(showFn, hideFn, duration) {
     if (this.isOverlayActive) {
@@ -138,7 +133,7 @@ class Game {
     }, duration);
   }
 
-  // ── Top milestone overlay during gameplay ──
+  // Top milestone overlay
 
   queueTopMilestone(type) {
     if (!this.highscoreIndicator) return;
@@ -244,18 +239,6 @@ class Game {
     this.scoreAnimationId = requestAnimationFrame(animate);
   }
 
-  getBestScoreFromLS() {
-    const scores = JSON.parse(localStorage.getItem("high-scores"));
-    if (!scores || scores.length === 0) return 0;
-    return scores[0].score; // already sorted descending
-  }
-
-  updateBestScoreDisplay() {
-    const best = this.getBestScoreFromLS();
-    if (this.bestScoreElement) this.bestScoreElement.innerText = best;
-    if (this.bestScoreEndElement) this.bestScoreEndElement.innerText = best;
-  }
-
   // shared cleanup for restart and gameOver
   clearGameEntities() {
     if (this.player && this.player.element && this.player.element.parentNode) {
@@ -325,8 +308,6 @@ class Game {
       this.top10Triggered = false;
       this.top1Triggered = false;
 
-      this.updateBestScoreDisplay();
-
       // avoid interval stacking
       if (this.gameInterval) {
         clearInterval(this.gameInterval);
@@ -390,8 +371,6 @@ class Game {
       this.top10Triggered = false;
       this.top1Triggered = false;
 
-      this.updateBestScoreDisplay();
-
       this.gameInterval = setInterval(() => {
         this.gameLoop();
       }, 1000 / 60);
@@ -433,7 +412,6 @@ class Game {
     if (this.levelIndicator) this.levelIndicator.classList.remove("show");
     if (this.damageOverlay) this.damageOverlay.classList.remove("flash");
     if (this.highscoreIndicator) this.highscoreIndicator.classList.remove("show", "top1");
-    clearTimeout(this._levelTimeout);
     clearTimeout(this._hsTimeout);
     clearTimeout(this._overlayTimeout);
     this.overlayQueue = [];
@@ -442,6 +420,7 @@ class Game {
     this.top1Triggered = false;
 
     this.hideScreen(this.gameContainer);
+    this.hideScreen(this.endScreen);
     this.hideScreen(this.endScreen);
     setTimeout(() => {
       this.showScreen(this.startScreen, "flex");
@@ -626,7 +605,7 @@ class Game {
           this.gameIsOver = true;
           // game-over SFX plays in gameOver(); skip lose-life
         } else {
-          // B) lose-life SFX (non-fatal hit only)
+          // lose-life SFX (non-fatal hit only)
           if (window.playLoseLifeSound) window.playLoseLifeSound();
         }
 
@@ -655,7 +634,6 @@ class Game {
         if (this.lives < this.maxLives) {
           this.lives++;
           this.updateLivesDisplay();
-          if (window.playHeartPickupSound) window.playHeartPickupSound();
         }
         continue;
       }
@@ -747,11 +725,11 @@ class Game {
   }
 
   gameOver() {
-    // Clear pending overlay queue (let active highscore overlay finish naturally)
+    // Clear overlay queue
     this.overlayQueue = [];
     if (this.levelIndicator) this.levelIndicator.classList.remove("show");
 
-    // C) game-over SFX (once, on final life loss)
+    // game-over SFX
     if (window.playGameOverSound) window.playGameOverSound();
 
     // notify audio to fade music
@@ -768,10 +746,9 @@ class Game {
 
     const highScoresFromLS = JSON.parse(localStorage.getItem("high-scores")) || [];
 
-    // Check if current score qualifies for Top 10
     const qualifiesForTop10 = this.checkQualifiesForTop10(highScoresFromLS, this.score);
 
-    // Compute rank for E) Top10 / Top1 overlay
+    // Compute rank
     let rank = 0;
     if (qualifiesForTop10) {
       const allForRank = [...highScoresFromLS, { score: this.score, isPending: true }];
@@ -780,7 +757,7 @@ class Game {
       rank = top10ForRank.findIndex(e => e.isPending) + 1;
     }
 
-    // E) High-score overlay + SFX — skip if already shown during gameplay
+    // High-score overlay + SFX (skip if shown during gameplay)
     if (!this.top1Triggered && !this.top10Triggered) {
       const hsIndicator = document.getElementById("highscore-indicator");
       if (hsIndicator) {
@@ -795,7 +772,7 @@ class Game {
             hsIndicator.textContent = "TOP 10!  #" + rank;
           }
 
-          // Play high-score SFX once (covers both top1 and top10)
+          // high-score SFX
           if (window.playHighScoreSound) window.playHighScoreSound();
 
           // Show after end screen appears
@@ -811,7 +788,6 @@ class Game {
       }
     }
 
-    // Set dynamic game over message
     const top10Message = document.getElementById("top10-message");
     if (top10Message) {
       if (qualifiesForTop10) {
@@ -824,14 +800,9 @@ class Game {
       }
     }
 
-    // Get UI elements - hide the old name entry section (now using inline)
-    const nameEntrySection = document.getElementById("name-entry-section");
-    nameEntrySection.classList.add("hidden");
-
     const restartBtn = document.getElementById("restart-button");
     const quitBtn = document.getElementById("gameover-quit-button");
 
-    // Get Save/Discard buttons
     const saveBtn = document.getElementById("save-button");
     const discardBtn = document.getElementById("discard-button");
 
@@ -840,7 +811,6 @@ class Game {
       restartBtn.disabled = true;
       quitBtn.disabled = true;
 
-      // Store current score/level for saving later
       this._pendingScore = this.score;
       this._pendingLevel = this.level;
       this._pendingEntry = {
@@ -850,34 +820,26 @@ class Game {
         isPending: true,
       };
 
-      // Show Save/Discard buttons
       saveBtn.classList.remove("hidden");
       discardBtn.classList.remove("hidden");
 
-      // Render leaderboard with pending inline entry (input only, no inline save)
       this.renderLeaderboardWithPending(highScoresFromLS, this._pendingEntry);
 
-      // Set up Save/Discard handlers
       this.setupSaveDiscardHandlers(restartBtn, quitBtn, saveBtn, discardBtn);
 
     } else {
-      // Does not qualify - enable buttons, show leaderboard normally
+      // Does not qualify
       restartBtn.disabled = false;
       quitBtn.disabled = false;
 
-      // Hide Save/Discard buttons
       saveBtn.classList.add("hidden");
       discardBtn.classList.add("hidden");
 
-      // Render existing leaderboard
       this.renderLeaderboard(highScoresFromLS);
     }
-
-    this.updateBestScoreDisplay();
   }
 
   renderLeaderboardWithPending(existingScores, pendingEntry) {
-    // Merge pending entry with existing scores
     const allScores = [...existingScores, pendingEntry];
     allScores.sort((a, b) => b.score - a.score);
     const top10 = allScores.slice(0, 10);
@@ -933,7 +895,6 @@ class Game {
   }
 
   setupSaveDiscardHandlers(restartBtn, quitBtn, saveBtn, discardBtn) {
-    // Remove previous listeners if any
     if (this._saveHandler) {
       saveBtn.removeEventListener("click", this._saveHandler);
     }
@@ -945,18 +906,14 @@ class Game {
     }
 
     const finishFlow = () => {
-      // Re-enable Restart/Quit buttons
       restartBtn.disabled = false;
       quitBtn.disabled = false;
 
-      // Hide Save/Discard buttons
       saveBtn.classList.add("hidden");
       discardBtn.classList.add("hidden");
 
-      // Clean up pending state
       this._pendingEntry = null;
 
-      // Clean up event listeners
       if (this._saveHandler) {
         saveBtn.removeEventListener("click", this._saveHandler);
         this._saveHandler = null;
@@ -978,7 +935,6 @@ class Game {
       const raw = input.value.trim();
       const name = raw.length > 0 ? (this.validateAndNormalizeName(input.value) || "AAA") : "AAA";
 
-      // Save to localStorage
       this.saveScoreWithName(name, this._pendingScore, this._pendingLevel);
 
       finishFlow();
@@ -1044,7 +1000,6 @@ class Game {
     const updatedScores = highScoresFromLS.slice(0, 10);
 
     localStorage.setItem("high-scores", JSON.stringify(updatedScores));
-    this.updateBestScoreDisplay();
     this.renderLeaderboard(updatedScores);
   }
 

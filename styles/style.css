@@ -43,13 +43,6 @@ body {
   animation: dd-score-pop 180ms ease-out;
 }
 
-.best-score-text {
-  margin: 6px 0 0;
-  font-size: 14px;
-  color: #f9fafb;
-  opacity: 0.85;
-}
-
 main {
   display: flex;
   flex-direction: column;
@@ -80,7 +73,7 @@ main {
   gap: 10px;
 }
 
-/* GAME AREA */
+/* Game area */
 #game-screen {
   width: 500px;
   height: 600px;
@@ -93,12 +86,15 @@ main {
   border: 2px solid #111;
   border-radius: 6px;
 
-  overflow: hidden; /* clip entities that leave the game area */
+  overflow: hidden;
 
-  touch-action: none; /* prevent zoom/scroll on mobile */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* INTRO GAME WINDOW */
+/* Intro game area */
 #intro-game-area {
   width: min(500px, 90vw);
   height: min(600px, 85vh);
@@ -113,7 +109,6 @@ main {
   overflow: hidden;
 }
 
-/* start panel */
 .start-panel {
   position: absolute;
   inset: 16px;
@@ -132,7 +127,6 @@ main {
   align-items: center;
 }
 
-/* start panel headings */
 .start-panel h1 {
   margin: 20px 0 6px;
   font-size: 32px;
@@ -146,20 +140,6 @@ main {
   color: #cbd5f5;
 }
 
-/* how to play */
-.start-controls {
-  margin: 5px 0 20px 0;
-  font-size: 14px;
-  width: 100%;
-}
-
-.start-controls p {
-  margin: 0 0 10px;
-  font-weight: 600;
-  color: #e5e7eb;
-  text-align: center;
-}
-
 .control-row {
   display: flex;
   align-items: center;
@@ -167,21 +147,6 @@ main {
   margin-bottom: 6px;
 }
 
-/* Layout for the two control columns (Keyboard / Touch) */
-.controls-columns {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-/* Each block (Keyboard / Touch) */
-.controls-block {
-  min-width: 170px;
-  text-align: left;
-}
-
-/* Small title above each column */
 .controls-title {
   margin: 0 0 10px 0;
   font-size: 13px;
@@ -209,13 +174,11 @@ main {
   font-weight: 600;
 }
 
-/* Action text next to each key */
 .action {
   color: #e5e7eb;
   font-size: 13px;
 }
 
-/* START BUTTON (Start Game) — now uses .start-menu-btn base */
 #start-button {
   margin-top: 14px;
 }
@@ -272,7 +235,6 @@ main {
   font-size: clamp(16px, 2.5vw, 18px);
 }
 
-/* RESTART BUTTON */
 #restart-button {
   margin-top: 4px;
   padding: 10px 22px;
@@ -354,66 +316,11 @@ main {
   -ms-user-select: none;
 }
 
-/* theme toggle */
-.theme-toggle {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: none;
-
-  background: rgba(15, 23, 42, 0.9);
-  color: #f9fafb;
-
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-
-  opacity: 0.85;
-  z-index: 5;
-
-  transition: opacity 0.15s ease, transform 0.1s ease;
-}
-
-.theme-toggle:hover {
-  opacity: 1;
-  transform: translateY(-1px);
-}
-
 #game-logo {
   width: 380px;
   margin: 2px auto 2px auto;
   display: block;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
-}
-
-.mute-toggle {
-  position: absolute;
-  top: 10px;
-  right: 160px;
-
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: none;
-
-  background: rgba(15, 23, 42, 0.9);
-  color: #f9fafb;
-
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-
-  opacity: 0.85;
-  z-index: 5;
-
-  transition: opacity 0.15s ease, transform 0.1s ease;
-}
-
-.mute-toggle:hover {
-  opacity: 1;
-  transform: translateY(-1px);
 }
 
 .enemy {
@@ -516,7 +423,6 @@ main {
   opacity: 0.9;
 }
 
-/* Leaderboard scrollable container */
 .leaderboard-container {
   flex: 1;
   min-height: 0;
@@ -535,7 +441,6 @@ main {
   margin-right: auto;
 }
 
-/* Arcade leaderboard item */
 .leaderboard-item {
   display: grid;
   grid-template-columns: 36px 1fr 68px 48px;
@@ -553,7 +458,7 @@ main {
   box-sizing: border-box;
 }
 
-/* Pending entry row (with input only, no inline save button) */
+/* Pending entry row */
 .leaderboard-item.pending-row {
   grid-template-columns: 36px 1fr 68px 48px;
 }
@@ -562,7 +467,6 @@ main {
   margin-bottom: 0;
 }
 
-/* Rank number */
 .rank {
   display: flex;
   align-items: center;
@@ -594,7 +498,6 @@ main {
   opacity: 0.7;
 }
 
-/* Score value */
 .leaderboard-score {
   font-size: 13px;
   font-weight: 700;
@@ -603,7 +506,6 @@ main {
   text-align: right;
 }
 
-/* Level indicator */
 .leaderboard-level {
   font-size: 10px;
   color: #64748b;
@@ -645,7 +547,7 @@ main {
   color: #a67c52;
 }
 
-/* Top 3 enhanced emphasis - stars are now rendered in JS */
+/* Stars rendered in JS */
 
 .leaderboard-item.top-1,
 .leaderboard-item.top-2,
@@ -653,7 +555,6 @@ main {
   font-weight: 700;
 }
 
-/* Congratulations Top 10 message */
 .top10-message {
   margin: 0 0 8px;
   font-size: 14px;
@@ -683,7 +584,6 @@ main {
   text-shadow: none;
 }
 
-/* Leaderboard name column */
 .leaderboard-name {
   font-size: 12px;
   font-weight: 600;
@@ -704,7 +604,6 @@ main {
   color: #d4a574;
 }
 
-/* Inline pending name input for leaderboard */
 .pending-name-input {
   width: 12ch;
   max-width: 100%;
@@ -730,130 +629,6 @@ main {
 .pending-name-input::placeholder {
   color: rgba(255, 255, 255, 0.4);
   font-weight: 400;
-}
-
-.save-score-btn {
-  padding: 4px 10px;
-  border-radius: 4px;
-  border: none;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #0b1020;
-  font-weight: 700;
-  font-size: 11px;
-  cursor: pointer;
-  transition: transform 0.1s ease, filter 0.15s ease;
-  white-space: nowrap;
-}
-
-.save-score-btn:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
-}
-
-.pending-name-error {
-  display: none;
-}
-
-/* Disabled state for end buttons */
-#restart-button:disabled,
-#gameover-quit-button:disabled {
-  opacity: 0.4;
-  pointer-events: none;
-  cursor: not-allowed;
-}
-
-/* Name entry section */
-.name-entry-section {
-  margin-bottom: 12px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  border: 1px solid rgba(251, 191, 36, 0.3);
-}
-
-.name-entry-section.hidden {
-  display: none;
-}
-
-.name-prompt {
-  margin: 0 0 10px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #fbbf24;
-}
-
-.name-input-row {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  align-items: center;
-}
-
-#player-name-input {
-  flex: 1;
-  max-width: 180px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(15, 23, 42, 0.9);
-  color: #fff;
-  font-size: 14px;
-  font-family: inherit;
-  outline: none;
-  transition: border-color 0.15s ease;
-}
-
-#player-name-input:focus {
-  border-color: #fbbf24;
-}
-
-#player-name-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-#save-score-button {
-  padding: 8px 16px;
-  border-radius: 6px;
-  border: none;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #0b1020;
-  font-weight: 700;
-  font-size: 12px;
-  cursor: pointer;
-  transition: transform 0.1s ease, filter 0.15s ease;
-}
-
-#save-score-button:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
-}
-
-#save-score-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  filter: none;
-  transform: none;
-}
-
-.name-error {
-  margin: 8px 0 0;
-  font-size: 12px;
-  color: #ef4444;
-  font-weight: 500;
-}
-
-.name-error.hidden {
-  display: none;
-}
-
-/* End buttons container (legacy, replaced by .gameover-actions) */
-.end-buttons {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: auto;
-  padding-top: 8px;
 }
 
 /* Game Over two-row button layout */
@@ -887,7 +662,7 @@ main {
   text-align: center;
 }
 
-/* Save and Discard buttons (styled same as Restart/Quit) */
+/* Save/Discard buttons */
 .end-btn {
   margin-top: 4px;
   padding: 10px 22px;
@@ -969,12 +744,6 @@ main {
   outline-offset: 3px;
 }
 
-.theme-toggle:focus-visible,
-.mute-toggle:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.6);
-  outline-offset: 2px;
-}
-
 #pause-menu-button {
   position: absolute;
   top: 10px;
@@ -994,6 +763,11 @@ main {
   z-index: 11;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
   transition: opacity 0.15s ease, transform 0.1s ease, background 0.15s ease;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
 #pause-menu-button:hover {
@@ -1156,9 +930,7 @@ main {
   transform: translateY(-1px);
 }
 
-/* ── Start menu sub-panels ── */
-
-/* Start menu button row */
+/* Start menu sub-panels */
 .start-menu-btn {
   margin-top: 6px;
   padding: 10px 22px;
@@ -1198,7 +970,6 @@ main {
   background: rgba(255, 255, 255, 0.17);
 }
 
-/* Back button */
 .start-back-btn {
   margin-top: 14px;
   background: rgba(255, 255, 255, 0.08);
@@ -1219,12 +990,10 @@ main {
   color: #e5e7eb;
 }
 
-/* Hidden state for subpanels */
 .start-panel.hidden {
   display: none !important;
 }
 
-/* Content area inside subpanels */
 .start-sub-content {
   width: 100%;
   display: flex;
@@ -1285,7 +1054,6 @@ main {
   }
 }
 
-/* Start screen leaderboard container */
 .start-leaderboard-container {
   flex: 1;
   min-height: 0;
@@ -1330,7 +1098,7 @@ main {
   overflow: hidden;
 }
 
-/* ── High-score overlay (inside #game-screen) ── */
+/* High-score overlay */
 #highscore-indicator {
   position: absolute;
   top: 50%;

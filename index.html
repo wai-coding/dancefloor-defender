@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="eng">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Page title -->
     <title>Dancefloor Defender</title>
     <link rel="stylesheet" href="./styles/style.css" />
     <link rel="icon" type="image/png" href="./images/favicon.png" />
@@ -12,12 +11,10 @@
   <body>
     <main>
 
-      <!-- Start screen -->
       <div id="game-intro" class="screen">
 
         <div id="intro-game-area">
 
-          <!-- Main start menu -->
           <div id="start-main-menu" class="start-panel">
             <h1>Dancefloor Defender</h1>
             <h2>Defend the club from bad DJs.</h2>
@@ -29,7 +26,6 @@
             <button id="start-instructions-button" class="start-menu-btn start-secondary-btn">Instructions</button>
           </div>
 
-          <!-- Options sub-panel -->
           <div id="start-options-panel" class="start-panel start-subpanel hidden">
             <h1>Options</h1>
             <div class="start-sub-content">
@@ -40,7 +36,6 @@
             <button class="start-menu-btn start-back-btn" data-back="start-main-menu">Back</button>
           </div>
 
-          <!-- High Scores sub-panel -->
           <div id="start-highscores-panel" class="start-panel start-subpanel hidden">
             <h1>High Scores</h1>
             <div class="leaderboard-container start-leaderboard-container">
@@ -49,7 +44,6 @@
             <button class="start-menu-btn start-back-btn" data-back="start-main-menu">Back</button>
           </div>
 
-          <!-- Instructions sub-panel -->
           <div id="start-instructions-panel" class="start-panel start-subpanel hidden">
             <h1>Instructions</h1>
             <div class="start-sub-content instructions-content">
@@ -80,13 +74,11 @@
         </div>
       </div>
 
-      <!-- Game container -->
       <div id="game-container" class="screen">
 
-        <!-- Game area -->
         <div id="game-screen">
 
-          <button id="pause-menu-button" type="button">Menu</button>
+          <button id="pause-menu-button" type="button" tabindex="-1">Menu</button>
 
           <div id="pause-overlay">
             <div id="pause-card">
@@ -109,7 +101,6 @@
             </div>
           </div>
 
-          <!-- HUD -->
           <div id="hud">
             <div id="hud-score" class="hud-item"><span class="hud-label">SCORE</span><span id="score" class="hud-value">0</span></div>
             <div id="hud-level" class="hud-item"><span class="hud-label">LEVEL</span><span id="level" class="hud-value">1</span></div>
@@ -120,14 +111,12 @@
 
           <div id="damage-overlay"></div>
 
-          <!-- High-score overlay (constrained to game screen) -->
           <div id="highscore-indicator"></div>
 
         </div>
 
       </div>
 
-      <!-- Game over screen -->
       <div id="game-end" class="screen">
 
         <div id="end-game-area">
@@ -139,16 +128,6 @@
             </p>
 
             <p id="top10-message" class="top10-message compact hidden">Congratulations! You made the Top 10!</p>
-
-            <!-- Name entry section (shown only when qualifying for Top 10) -->
-            <div id="name-entry-section" class="name-entry-section hidden">
-              <p class="name-prompt">You made the Top 10! Enter your name:</p>
-              <div class="name-input-row">
-                <input type="text" id="player-name-input" maxlength="10" placeholder="Your name" autocomplete="off" />
-                <button id="save-score-button">Save</button>
-              </div>
-              <p id="name-error" class="name-error hidden">Name is required (1-10 characters)</p>
-            </div>
 
             <h2>High Scores</h2>
             <div class="leaderboard-container">
