@@ -1,0 +1,35 @@
+<svg width="70" height="70" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="redGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.2" flood-color="#ff1a1a" flood-opacity="0.8"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#ff1a1a" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect width="70" height="70" fill="none"/>
+
+  <!-- body (USB stick) -->
+  <rect x="23" y="18" width="24" height="42" rx="6"
+        fill="#ef4444" stroke="#991b1b" stroke-width="2"
+        filter="url(#redGlow)"/>
+
+  <!-- angry eyes -->
+  <rect x="27" y="30" width="6" height="4" rx="1" fill="#fbbf24"/>
+  <rect x="37" y="30" width="6" height="4" rx="1" fill="#fbbf24"/>
+
+  <!-- harsh eyebrows (angled) -->
+  <polygon points="25,28 34,30 34,33 25,31" fill="#7f1d1d"/>
+  <polygon points="45,28 36,30 36,33 45,31" fill="#7f1d1d"/>
+
+  <!-- jagged angry mouth with teeth -->
+  <path d="M27 44 L43 44" stroke="#111827" stroke-width="3" stroke-linecap="round"/>
+  <path d="M28 45 L31 48 L34 45 L37 48 L40 45 L42 47" stroke="#111827" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <polygon points="30,44 32,44 31,46" fill="#f9fafb"/>
+  <polygon points="34,44 36,44 35,46" fill="#f9fafb"/>
+  <polygon points="38,44 40,44 39,46" fill="#f9fafb"/>
+
+  <!-- USB connector (MUST face down) -->
+  <rect x="28" y="58" width="14" height="10" rx="2" fill="#d1d5db" stroke="#6b7280" stroke-width="1.5"/>
+  <rect x="30" y="60" width="4" height="6" rx="1" fill="#6b7280"/>
+  <rect x="36" y="60" width="4" height="6" rx="1" fill="#6b7280"/>
+</svg>

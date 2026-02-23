@@ -173,6 +173,7 @@ window.onload = function () {
     duckMusicWhile(highScoreSound);
     playSfx(highScoreSound);
   };
+  window.playHeartPickupSound = function () { playSfx(nextLevelSound); };
 
   window.onGameOver = function () {
     if (!isMusicMuted) {

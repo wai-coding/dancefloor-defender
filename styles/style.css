@@ -420,6 +420,17 @@ main {
   transition: filter 0ms;
 }
 
+.heart-powerup {
+  z-index: 5;
+  filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));
+  animation: heart-bob 1.2s ease-in-out infinite;
+}
+
+@keyframes heart-bob {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.1); }
+}
+
 #hud-score #score {
   color: #fbbf24;
   text-shadow: 0 0 8px rgba(251, 191, 36, 0.5), 0 0 2px rgba(251, 191, 36, 0.3);

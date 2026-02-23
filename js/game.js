@@ -1,11 +1,20 @@
 const DIFFICULTY_CONFIG = {
-  baseSpawnInterval: 90,      // frames between spawns at level 1
-  minSpawnInterval: 40,       // fastest allowed spawn rate
-  spawnReductionPerLevel: 5,  // frames subtracted per difficulty tick
-  difficultyTickFrames: 600,  // frames between difficulty increases (~10 s)
-  maxDifficulty: 15,          // cap difficulty so it doesn't go infinite
-  speedBoostPerLevel: 0.3,    // enemy speed increase per difficulty tick
-  maxSpeedBoost: 4.5,         // cap speed boost (prevents unreactable speeds)
+  baseSpawnInterval: 90,
+  difficultyTickFrames: 540,
+  maxDifficulty: 25,
+  lateThreshold: 4,
+  early: {
+    spawnReductionPerLevel: 6,
+    minSpawnInterval: 42,
+    speedBoostPerLevel: 0.35,
+    maxSpeedBoost: 2.5,
+  },
+  late: {
+    spawnReductionPerLevel: 5,
+    minSpawnInterval: 22,
+    speedBoostPerLevel: 0.45,
+    maxSpeedBoost: 7.0,
+  },
 };
 
 class Game {
@@ -34,11 +43,14 @@ class Game {
     this.levelIndicator = document.getElementById("level-indicator");
     this.damageOverlay = document.getElementById("damage-overlay");
     this.highscoreIndicator = document.getElementById("highscore-indicator");
-    this.maxLives = 3;
+    this.maxLives = 5;
 
     this.player = null;
     this.enemies = [];
     this.bullets = [];
+    this.hearts = [];
+    this.heartSpawnFrame = null;
+    this.heartSpawnedThisLevel = false;
 
     this.gameIsOver = false;
     this.frames = 0;
@@ -260,6 +272,11 @@ class Game {
       if (b.element && b.element.parentNode) b.element.remove();
     });
     this.bullets = [];
+
+    this.hearts.forEach((h) => {
+      if (h.element && h.element.parentNode) h.element.remove();
+    });
+    this.hearts = [];
   }
 
   start() {
@@ -280,6 +297,9 @@ class Game {
 
       this.enemies = [];
       this.bullets = [];
+      this.hearts = [];
+      this.heartSpawnFrame = null;
+      this.heartSpawnedThisLevel = false;
       this.frames = 0;
       this.gameIsOver = false;
       this.isPaused = false;
@@ -342,6 +362,9 @@ class Game {
 
       this.enemies = [];
       this.bullets = [];
+      this.hearts = [];
+      this.heartSpawnFrame = null;
+      this.heartSpawnedThisLevel = false;
       this.frames = 0;
       this.gameIsOver = false;
       this.isPaused = false;
@@ -393,6 +416,9 @@ class Game {
 
     this.enemies = [];
     this.bullets = [];
+    this.hearts = [];
+    this.heartSpawnFrame = null;
+    this.heartSpawnedThisLevel = false;
     this.frames = 0;
     this.difficulty = 0;
     this.level = 1;
@@ -461,7 +487,6 @@ class Game {
 
     this.frames++;
 
-    // bump difficulty every ~10s, capped
     if (
       this.frames % DIFFICULTY_CONFIG.difficultyTickFrames === 0 &&
       this.difficulty < DIFFICULTY_CONFIG.maxDifficulty
@@ -471,21 +496,108 @@ class Game {
       this.level = this.difficulty + 1;
       this.levelElement.innerText = this.level;
       this.showLevelUp(this.level);
+
+      this.heartSpawnedThisLevel = false;
+      if (Math.random() < 0.20) {
+        const delayFrames = Math.floor((120 + Math.random() * 360));
+        this.heartSpawnFrame = this.frames + delayFrames;
+      } else {
+        this.heartSpawnFrame = null;
+      }
     }
 
+    const lateT = DIFFICULTY_CONFIG.lateThreshold;
+    const phase = this.difficulty >= lateT
+      ? DIFFICULTY_CONFIG.late
+      : DIFFICULTY_CONFIG.early;
+
+    const earlyLevels = Math.min(this.difficulty, lateT);
+    const lateLevels = Math.max(this.difficulty - lateT, 0);
+    const totalReduction =
+      earlyLevels * DIFFICULTY_CONFIG.early.spawnReductionPerLevel +
+      lateLevels * DIFFICULTY_CONFIG.late.spawnReductionPerLevel;
+
     const spawnInterval = Math.max(
-      DIFFICULTY_CONFIG.minSpawnInterval,
-      DIFFICULTY_CONFIG.baseSpawnInterval -
-        this.difficulty * DIFFICULTY_CONFIG.spawnReductionPerLevel
+      phase.minSpawnInterval,
+      DIFFICULTY_CONFIG.baseSpawnInterval - totalReduction
     );
 
     if (this.frames % spawnInterval === 0) {
-      const speedBoost = Math.min(
-        this.difficulty * DIFFICULTY_CONFIG.speedBoostPerLevel,
-        DIFFICULTY_CONFIG.maxSpeedBoost
+      let speedBoost =
+        earlyLevels * DIFFICULTY_CONFIG.early.speedBoostPerLevel +
+        lateLevels * DIFFICULTY_CONFIG.late.speedBoostPerLevel;
+      speedBoost = Math.min(speedBoost, phase.maxSpeedBoost);
+
+      let enemyType = "normal";
+      if (this.difficulty >= 9) {
+        if (Math.random() < 0.35) enemyType = "angry";
+      } else if (this.difficulty >= 4) {
+        if (Math.random() < 0.22) enemyType = "angry";
+      }
+      if (enemyType === "normal") {
+        if (this.difficulty >= lateT + 6) {
+          if (Math.random() < 0.35) enemyType = "fast";
+        } else if (this.difficulty >= lateT) {
+          if (Math.random() < 0.20) enemyType = "fast";
+        }
+      }
+
+      const firstEnemy = new Enemy(this.gameScreen, speedBoost, enemyType);
+      this.enemies.push(firstEnemy);
+
+      let extraCount = 0;
+      if (this.difficulty >= lateT + 6) {
+        const roll = Math.random();
+        if (roll < 0.10) extraCount = 2;
+        else if (roll < 0.55) extraCount = 1;
+      } else if (this.difficulty >= lateT) {
+        if (Math.random() < 0.25) extraCount = 1;
+      }
+
+      if (extraCount > 0) {
+        const spawnedXs = [firstEnemy.left];
+        for (let e = 0; e < extraCount; e++) {
+          let extraType = "normal";
+          if (this.difficulty >= 9) {
+            if (Math.random() < 0.35) extraType = "angry";
+          } else if (this.difficulty >= 4) {
+            if (Math.random() < 0.22) extraType = "angry";
+          }
+          if (extraType === "normal") {
+            if (this.difficulty >= lateT + 6) {
+              if (Math.random() < 0.35) extraType = "fast";
+            } else if (this.difficulty >= lateT) {
+              if (Math.random() < 0.20) extraType = "fast";
+            }
+          }
+
+          const extra = new Enemy(this.gameScreen, speedBoost, extraType);
+          const minDist = extra.width + 10;
+          let tries = 0;
+          while (tries < 5 && spawnedXs.some(sx => Math.abs(extra.left - sx) < minDist)) {
+            extra.left = Math.floor(Math.random() * (500 - extra.width));
+            tries++;
+          }
+          extra.updatePosition();
+          spawnedXs.push(extra.left);
+          this.enemies.push(extra);
+        }
+      }
+    }
+
+    if (
+      this.heartSpawnFrame &&
+      !this.heartSpawnedThisLevel &&
+      this.frames >= this.heartSpawnFrame
+    ) {
+      this.heartSpawnedThisLevel = true;
+      this.heartSpawnFrame = null;
+      const heart = new Heart(
+        this.gameScreen,
+        this.player.left,
+        this.player.width
       );
-      const newEnemy = new Enemy(this.gameScreen, speedBoost);
-      this.enemies.push(newEnemy);
+      this.hearts.push(heart);
     }
 
     if (window.processInput) window.processInput();
@@ -531,6 +643,30 @@ class Game {
       }
     }
 
+    for (let i = 0; i < this.hearts.length; i++) {
+      const heart = this.hearts[i];
+      heart.move();
+
+      if (heart.didCollidePlayer(this.player)) {
+        heart.remove();
+        this.hearts.splice(i, 1);
+        i--;
+
+        if (this.lives < this.maxLives) {
+          this.lives++;
+          this.updateLivesDisplay();
+          if (window.playHeartPickupSound) window.playHeartPickupSound();
+        }
+        continue;
+      }
+
+      if (heart.top > this.height) {
+        heart.remove();
+        this.hearts.splice(i, 1);
+        i--;
+      }
+    }
+
     for (let i = 0; i < this.bullets.length; i++) {
       const bullet = this.bullets[i];
       bullet.move();
@@ -544,6 +680,34 @@ class Game {
 
     for (let i = 0; i < this.bullets.length; i++) {
       const bullet = this.bullets[i];
+      let bulletConsumed = false;
+
+      for (let h = 0; h < this.hearts.length; h++) {
+        const heart = this.hearts[h];
+
+        if (heart.didCollideRect(bullet)) {
+          heart.remove();
+          this.hearts.splice(h, 1);
+
+          bullet.remove();
+          this.bullets.splice(i, 1);
+          i--;
+          bulletConsumed = true;
+
+          this.triggerShake();
+          this.lives--;
+          this.updateLivesDisplay();
+          this.triggerDamageFlash();
+
+          if (this.lives <= 0) {
+            this.gameIsOver = true;
+          } else {
+            if (window.playLoseLifeSound) window.playLoseLifeSound();
+          }
+          break;
+        }
+      }
+      if (bulletConsumed) continue;
 
       for (let j = 0; j < this.enemies.length; j++) {
         const enemy = this.enemies[j];
@@ -558,15 +722,22 @@ class Game {
           bullet.remove();
           this.bullets.splice(i, 1);
 
-          this.enemies.splice(j, 1);
+          enemy.hp--;
 
-          // flash then remove
-          enemy.element.classList.add("enemy-hit");
-          setTimeout(() => {
-            enemy.remove();
-          }, 70);
-
-          this.setScore(this.score + 2);
+          if (enemy.hp <= 0) {
+            this.enemies.splice(j, 1);
+            enemy.element.classList.add("enemy-hit");
+            setTimeout(() => {
+              enemy.remove();
+            }, 70);
+            this.setScore(this.score + (enemy.type === "angry" ? 5 : 2));
+          } else {
+            enemy.element.classList.add("enemy-hit");
+            setTimeout(() => {
+              enemy.element.classList.remove("enemy-hit");
+            }, 70);
+            this.setScore(this.score + 2);
+          }
 
           i--;
           break;
