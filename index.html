@@ -33,7 +33,8 @@
           <div id="start-options-panel" class="start-panel start-subpanel hidden">
             <h1>Options</h1>
             <div class="start-sub-content">
-              <button id="start-mute-button" type="button" class="start-menu-btn start-secondary-btn">Mute</button>
+              <button id="start-mute-music-button" type="button" class="start-menu-btn start-secondary-btn">Mute Music</button>
+              <button id="start-mute-sounds-button" type="button" class="start-menu-btn start-secondary-btn">Mute Sounds</button>
               <button id="start-theme-button" type="button" class="start-menu-btn start-secondary-btn">Turn Off The Lights</button>
             </div>
             <button class="start-menu-btn start-back-btn" data-back="start-main-menu">Back</button>
@@ -52,16 +53,26 @@
           <div id="start-instructions-panel" class="start-panel start-subpanel hidden">
             <h1>Instructions</h1>
             <div class="start-sub-content instructions-content">
-              <p class="controls-title">Keyboard</p>
-              <div class="control-row"><span class="key">← →</span><span class="action">Move</span></div>
-              <div class="control-row"><span class="key">SPACE</span><span class="action">Shoot</span></div>
-              <div class="control-row"><span class="key">P / Menu</span><span class="action">Pause</span></div>
-              <div class="control-row"><span class="key">M</span><span class="action">Mute</span></div>
-              <div class="control-row"><span class="key">L</span><span class="action">Theme</span></div>
-              <div class="control-row"><span class="key">ENTER</span><span class="action">Save name</span></div>
-              <p class="controls-title">Touch</p>
-              <div class="control-row"><span class="key">Left / Right</span><span class="action">Move</span></div>
-              <div class="control-row"><span class="key">Center tap</span><span class="action">Shoot</span></div>
+              <p class="instructions-intro">
+                Defend the dancefloor from waves of bad DJs!
+                Shoot vinyl records to take them down, survive each wave
+                and reach higher levels. Can you top the leaderboard?
+              </p>
+              <div class="instructions-columns">
+                <div class="instructions-col">
+                  <p class="controls-title">Keyboard</p>
+                  <div class="control-row"><span class="key">← →</span><span class="action">Move</span></div>
+                  <div class="control-row"><span class="key">SPACE</span><span class="action">Shoot</span></div>
+                  <div class="control-row"><span class="key">P / Menu</span><span class="action">Pause</span></div>
+                  <div class="control-row"><span class="key">M</span><span class="action">Mute (music + sounds)</span></div>
+                  <div class="control-row"><span class="key">L</span><span class="action">Toggle theme</span></div>
+                </div>
+                <div class="instructions-col">
+                  <p class="controls-title">Touch</p>
+                  <div class="control-row"><span class="key">Left / Right</span><span class="action">Move</span></div>
+                  <div class="control-row"><span class="key">Center tap</span><span class="action">Shoot</span></div>
+                </div>
+              </div>
             </div>
             <button class="start-menu-btn start-back-btn" data-back="start-main-menu">Back</button>
           </div>
@@ -87,7 +98,8 @@
                 <button id="quit-button" class="pause-btn">Quit</button>
               </div>
               <div id="pause-options" class="pause-section-hidden">
-                <button id="pause-mute-button" type="button" class="pause-btn pause-option-btn">Mute</button>
+                <button id="pause-mute-music-button" type="button" class="pause-btn pause-option-btn">Mute Music</button>
+                <button id="pause-mute-sounds-button" type="button" class="pause-btn pause-option-btn">Mute Sounds</button>
                 <button id="pause-theme-button" type="button" class="pause-btn pause-option-btn">Turn Off The Lights</button>
                 <div id="pause-options-nav">
                   <button id="pause-back-button" class="pause-btn pause-nav-btn">Back</button>

@@ -654,7 +654,12 @@ main {
 /* Compact mode for congratulations message */
 .top10-message.compact {
   margin: 0 0 4px;
-  font-size: clamp(11px, 2vw, 13px);
+  font-size: clamp(14px, 3vw, 18px);
+  max-width: calc(100% - 24px);
+  padding: 0 12px;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 .top10-message.hidden {
@@ -1215,16 +1220,51 @@ main {
 .instructions-content {
   align-items: center;
   text-align: center;
-  padding: 0 24px;
+  padding: 0 12px;
 }
 
-.instructions-content .control-row {
+.instructions-intro {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #cbd5e1;
+  opacity: 0.9;
+}
+
+.instructions-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
   width: 100%;
+  align-items: start;
+}
+
+.instructions-col {
+  text-align: left;
+}
+
+.instructions-col .controls-title {
+  margin-bottom: 8px;
+}
+
+.instructions-col .control-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 14px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 6px;
+  width: 100%;
+}
+
+@media (max-width: 420px) {
+  .instructions-columns {
+    grid-template-columns: 1fr;
+  }
+  .instructions-col {
+    text-align: center;
+  }
+  .instructions-col .control-row {
+    justify-content: center;
+  }
 }
 
 /* Start screen leaderboard container */
@@ -1233,6 +1273,7 @@ main {
   min-height: 0;
   overflow-y: auto;
   margin: 8px 0;
+  width: 100%;
 }
 
 /* Tighter spacing inside High Scores panel for more list room */
@@ -1241,7 +1282,7 @@ main {
   padding-bottom: 10px;
 }
 #start-highscores-panel h1 {
-  margin: 4px 0 2px;
+  margin: 4px 0 10px;
   font-size: 26px;
 }
 #start-highscores-panel .start-leaderboard-container {
@@ -1272,6 +1313,14 @@ main {
   font-size: 13px;
 }
 
+#start-highscores-panel .leaderboard-level {
+  white-space: nowrap;
+}
+
+#start-highscores-panel .leaderboard-item {
+  grid-template-columns: 36px 1fr 68px 56px;
+}
+
 /* Override the start panel for subpanels to fill game area better */
 .start-subpanel {
   overflow: hidden;
@@ -1282,17 +1331,15 @@ main {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.8);
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  transform: translate(-50%, -50%) scale(0.9);
+  white-space: nowrap;
   text-align: center;
-  max-width: calc(100% - 24px);
-  padding: 0 12px;
+  max-width: calc(100% - 32px);
+  padding: 0 16px;
   box-sizing: border-box;
-  font-size: clamp(14px, 3.4vw, 22px);
+  font-size: clamp(18px, 4.2vw, 28px);
   font-weight: 900;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   color: #fff;
   text-shadow:
@@ -1311,8 +1358,8 @@ main {
 }
 
 #highscore-indicator.top1 {
-  font-size: clamp(16px, 4vw, 26px);
-  letter-spacing: 1px;
+  font-size: clamp(18px, 4.2vw, 28px);
+  letter-spacing: 0.5px;
   text-shadow:
     0 0 30px rgba(251, 191, 36, 1),
     0 0 60px rgba(251, 191, 36, 0.6),

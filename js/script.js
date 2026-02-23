@@ -2,7 +2,8 @@ window.onload = function () {
   const MUSIC_VOLUME = 0.35;
   const SFX_VOLUME = 0.65;
   const MUSIC_GAMEOVER_VOLUME = 0.12;
-  const MUTE_LS_KEY = "dancefloor_defender_muted";
+  const MUSIC_MUTE_LS_KEY = "dancefloor_defender_music_muted";
+  const SFX_MUTE_LS_KEY = "dancefloor_defender_sfx_muted";
 
   let ourGame = null;
 
@@ -27,6 +28,9 @@ window.onload = function () {
   const quitButton = document.getElementById("quit-button");
 
   const themeButton = document.getElementById("pause-theme-button");
+
+  const pauseMuteMusicBtn = document.getElementById("pause-mute-music-button");
+  const pauseMuteSoundsBtn = document.getElementById("pause-mute-sounds-button");
 
   const LIGHT_BG = "./images/background-light.png";
   const DARK_BG = "./images/background-dark.png";
@@ -58,8 +62,6 @@ window.onload = function () {
 
   applyTheme();
 
-  const muteButton = document.getElementById("pause-mute-button");
-
   const bgMusic = new Audio("./assets/music.mp3");
   bgMusic.loop = true;
   bgMusic.volume = 0;
@@ -85,14 +87,15 @@ window.onload = function () {
 
   /** Play a named SFX once, respecting mute. Resets currentTime for rapid retrigger. */
   function playSfx(sound) {
-    if (isMuted) return;
+    if (isSfxMuted) return;
     try {
       sound.currentTime = 0;
       sound.play();
     } catch (e) { /* browser autoplay guard */ }
   }
 
-  let isMuted = localStorage.getItem(MUTE_LS_KEY) === "true";
+  let isMusicMuted = localStorage.getItem(MUSIC_MUTE_LS_KEY) === "true";
+  let isSfxMuted = localStorage.getItem(SFX_MUTE_LS_KEY) === "true";
 
   function fadeAudio(audio, targetVolume, duration) {
     if (!audio) return;
@@ -118,7 +121,7 @@ window.onload = function () {
   }
 
   function playEnemyHitSound() {
-    if (isMuted) return;
+    if (isSfxMuted) return;
     try {
       enemyHitSound.currentTime = 0;
       enemyHitSound.play();
@@ -133,19 +136,17 @@ window.onload = function () {
   let activeDuckCount = 0;        // track overlapping ducks
 
   function duckMusicWhile(sound) {
-    if (isMuted) return;
+    if (isMusicMuted) return;
     if (bgMusic.paused) return;
 
     activeDuckCount++;
-    // lower music immediately
     bgMusic.volume = DUCK_VOLUME;
 
     function restoreMusic() {
       activeDuckCount--;
       if (activeDuckCount <= 0) {
         activeDuckCount = 0;
-        // only restore if still playing and not muted
-        if (!isMuted && !bgMusic.paused) {
+        if (!isMusicMuted && !bgMusic.paused) {
           fadeAudio(bgMusic, MUSIC_VOLUME, 300);
         }
       }
@@ -174,37 +175,47 @@ window.onload = function () {
   };
 
   window.onGameOver = function () {
-    if (!isMuted) {
+    if (!isMusicMuted) {
       fadeAudio(bgMusic, MUSIC_GAMEOVER_VOLUME, 400);
     }
   };
 
-  function updateMuteUI() {
-    if (muteButton) {
-      muteButton.textContent = isMuted ? "Unmute" : "Mute";
-    }
+  function updatePauseMuteUI() {
+    if (pauseMuteMusicBtn) pauseMuteMusicBtn.textContent = isMusicMuted ? "Unmute Music" : "Mute Music";
+    if (pauseMuteSoundsBtn) pauseMuteSoundsBtn.textContent = isSfxMuted ? "Unmute Sounds" : "Mute Sounds";
   }
 
-  if (muteButton) {
-    muteButton.addEventListener("click", function () {
-      isMuted = !isMuted;
-      localStorage.setItem(MUTE_LS_KEY, isMuted);
+  if (pauseMuteMusicBtn) {
+    pauseMuteMusicBtn.addEventListener("click", function () {
+      isMusicMuted = !isMusicMuted;
+      localStorage.setItem(MUSIC_MUTE_LS_KEY, isMusicMuted);
 
-      if (isMuted) {
-        bgMusic.pause(); // pause, keep position
+      if (isMusicMuted) {
+        bgMusic.pause();
       } else {
-        // resume from same spot
         bgMusic.volume = 0;
         bgMusic.play().catch(() => {});
         fadeAudio(bgMusic, MUSIC_VOLUME, 300);
       }
 
-      updateMuteUI();
-      muteButton.blur(); // avoid space bar re-trigger
+      updatePauseMuteUI();
+      updateStartMuteUI();
+      this.blur();
     });
   }
 
-  updateMuteUI();
+  if (pauseMuteSoundsBtn) {
+    pauseMuteSoundsBtn.addEventListener("click", function () {
+      isSfxMuted = !isSfxMuted;
+      localStorage.setItem(SFX_MUTE_LS_KEY, isSfxMuted);
+
+      updatePauseMuteUI();
+      updateStartMuteUI();
+      this.blur();
+    });
+  }
+
+  updatePauseMuteUI();
 
   // ── Start menu sub-panel navigation ──
   const startMainMenu = document.getElementById("start-main-menu");
@@ -216,7 +227,8 @@ window.onload = function () {
   const startOptionsBtn = document.getElementById("start-options-button");
   const startHighscoresBtn = document.getElementById("start-highscores-button");
   const startInstructionsBtn = document.getElementById("start-instructions-button");
-  const startMuteBtn = document.getElementById("start-mute-button");
+  const startMuteMusicBtn = document.getElementById("start-mute-music-button");
+  const startMuteSoundsBtn = document.getElementById("start-mute-sounds-button");
   const startThemeBtn = document.getElementById("start-theme-button");
 
   function showStartSubpanel(panel) {
@@ -232,7 +244,8 @@ window.onload = function () {
   }
 
   function updateStartMuteUI() {
-    if (startMuteBtn) startMuteBtn.textContent = isMuted ? "Unmute" : "Mute";
+    if (startMuteMusicBtn) startMuteMusicBtn.textContent = isMusicMuted ? "Unmute Music" : "Mute Music";
+    if (startMuteSoundsBtn) startMuteSoundsBtn.textContent = isSfxMuted ? "Unmute Sounds" : "Mute Sounds";
   }
 
   function updateStartThemeUI() {
@@ -292,19 +305,30 @@ window.onload = function () {
     });
   }
 
-  // Start Options panel — mute button
-  if (startMuteBtn) {
-    startMuteBtn.addEventListener("click", function () {
-      isMuted = !isMuted;
-      localStorage.setItem(MUTE_LS_KEY, isMuted);
-      if (isMuted) {
+  // Start Options panel — mute music button
+  if (startMuteMusicBtn) {
+    startMuteMusicBtn.addEventListener("click", function () {
+      isMusicMuted = !isMusicMuted;
+      localStorage.setItem(MUSIC_MUTE_LS_KEY, isMusicMuted);
+      if (isMusicMuted) {
         bgMusic.pause();
       } else {
         bgMusic.volume = 0;
         bgMusic.play().catch(() => {});
         fadeAudio(bgMusic, MUSIC_VOLUME, 300);
       }
-      updateMuteUI();
+      updatePauseMuteUI();
+      updateStartMuteUI();
+      this.blur();
+    });
+  }
+
+  // Start Options panel — mute sounds button
+  if (startMuteSoundsBtn) {
+    startMuteSoundsBtn.addEventListener("click", function () {
+      isSfxMuted = !isSfxMuted;
+      localStorage.setItem(SFX_MUTE_LS_KEY, isSfxMuted);
+      updatePauseMuteUI();
       updateStartMuteUI();
       this.blur();
     });
@@ -332,7 +356,7 @@ window.onload = function () {
   let musicStarted = false;
 
   function startMusicIfNeeded() {
-    if (isMuted) return;
+    if (isMusicMuted) return;
     if (!musicStarted) {
       bgMusic.volume = 0;
       bgMusic.play().catch(() => {});
@@ -415,6 +439,7 @@ window.onload = function () {
       if (pauseMain) pauseMain.classList.add("pause-section-hidden");
       if (pauseOptions) pauseOptions.classList.remove("pause-section-hidden");
       if (pauseTitle) pauseTitle.textContent = "OPTIONS";
+      updatePauseMuteUI();
       this.blur();
     });
   }
@@ -465,10 +490,13 @@ window.onload = function () {
 
     // ── Global hotkeys (work on ALL screens, except when typing) ──
     if (!isTyping && event.code === "KeyM") {
-      isMuted = !isMuted;
-      localStorage.setItem(MUTE_LS_KEY, isMuted);
+      var allMuted = isMusicMuted && isSfxMuted;
+      isMusicMuted = !allMuted;
+      isSfxMuted = !allMuted;
+      localStorage.setItem(MUSIC_MUTE_LS_KEY, isMusicMuted);
+      localStorage.setItem(SFX_MUTE_LS_KEY, isSfxMuted);
 
-      if (isMuted) {
+      if (isMusicMuted) {
         bgMusic.pause();
       } else {
         bgMusic.volume = 0;
@@ -476,7 +504,7 @@ window.onload = function () {
         fadeAudio(bgMusic, MUSIC_VOLUME, 300);
       }
 
-      updateMuteUI();
+      updatePauseMuteUI();
       updateStartMuteUI();
       return;
     }
@@ -514,7 +542,7 @@ window.onload = function () {
       const newBullet = new Bullet(ourGame.gameScreen, bulletLeft, bulletTop);
       ourGame.bullets.push(newBullet);
 
-      if (!isMuted) {
+      if (!isSfxMuted) {
         try {
           // reset to allow rapid fire
           shootSound.currentTime = 0;
@@ -557,7 +585,7 @@ window.onload = function () {
         const newBullet = new Bullet(ourGame.gameScreen, bulletLeft, bulletTop);
         ourGame.bullets.push(newBullet);
 
-        if (!isMuted) {
+        if (!isSfxMuted) {
           try {
             shootSound.currentTime = 0;
             shootSound.play();
