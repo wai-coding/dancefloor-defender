@@ -259,26 +259,34 @@ window.onload = function () {
     const scores = JSON.parse(localStorage.getItem("high-scores")) || [];
     startHighScoresList.innerHTML = "";
     const top10 = scores.slice(0, 10);
-    top10.forEach((entry, index) => {
+    for (let i = 0; i < 10; i++) {
       const li = document.createElement("li");
       li.className = "leaderboard-item";
-      if (index < 3) li.classList.add("top-" + (index + 1));
-      const rank = index + 1;
+      const rank = i + 1;
       const starHtml = rank <= 3 ? '<span class="rank-star">\u2605</span>' : "";
-      const displayName = entry.name || "AAA";
-      const scoreDisplay = String(entry.score).padStart(6, "0");
-      const levelDisplay = "LVL " + String(entry.level).padStart(2, "0");
-      // escapeHtml inline
-      const div = document.createElement("div");
-      div.textContent = displayName;
-      const safeName = div.innerHTML;
-      li.innerHTML =
-        '<span class="rank"><span class="rank-num">' + rank + '.</span>' + starHtml + '</span>' +
-        '<span class="leaderboard-name">' + safeName + '</span>' +
-        '<span class="leaderboard-score">' + scoreDisplay + '</span>' +
-        '<span class="leaderboard-level">' + levelDisplay + '</span>';
+      if (top10[i]) {
+        if (i < 3) li.classList.add("top-" + (i + 1));
+        const displayName = top10[i].name || "AAA";
+        const scoreDisplay = String(top10[i].score).padStart(6, "0");
+        const levelDisplay = "LVL " + String(top10[i].level).padStart(2, "0");
+        const div = document.createElement("div");
+        div.textContent = displayName;
+        const safeName = div.innerHTML;
+        li.innerHTML =
+          '<span class="rank"><span class="rank-num">' + rank + '.</span>' + starHtml + '</span>' +
+          '<span class="leaderboard-name">' + safeName + '</span>' +
+          '<span class="leaderboard-score">' + scoreDisplay + '</span>' +
+          '<span class="leaderboard-level">' + levelDisplay + '</span>';
+      } else {
+        li.classList.add("empty-row");
+        li.innerHTML =
+          '<span class="rank"><span class="rank-num">' + rank + '.</span>' + starHtml + '</span>' +
+          '<span class="leaderboard-name"></span>' +
+          '<span class="leaderboard-score"></span>' +
+          '<span class="leaderboard-level"></span>';
+      }
       startHighScoresList.appendChild(li);
-    });
+    }
   }
 
   if (startOptionsBtn) {
@@ -483,6 +491,12 @@ window.onload = function () {
     });
   }
 
+  // ── Input state tracking for fluid movement + shooting ──
+  const keysPressed = {};
+  let lastDirectionKey = null;
+  const SHOOT_COOLDOWN = 150;
+  let lastShotTime = 0;
+
   window.addEventListener("keydown", function (event) {
     // ── Skip global hotkeys when typing in an input ──
     const tag = document.activeElement && document.activeElement.tagName;
@@ -524,43 +538,65 @@ window.onload = function () {
       return;
     }
 
-    // block input while paused
-    if (ourGame.isPaused || ourGame.gameIsOver) return;
-
-    if (event.code === "ArrowLeft") {
-      ourGame.player.speedX = -5;
-    }
-
-    if (event.code === "ArrowRight") {
-      ourGame.player.speedX = 5;
-    }
-
-    if (event.code === "Space") {
-      const bulletLeft = ourGame.player.left + ourGame.player.width / 2 - 3;
-      const bulletTop = ourGame.player.top - 10;
-
-      const newBullet = new Bullet(ourGame.gameScreen, bulletLeft, bulletTop);
-      ourGame.bullets.push(newBullet);
-
-      if (!isSfxMuted) {
-        try {
-          // reset to allow rapid fire
-          shootSound.currentTime = 0;
-          shootSound.play();
-        } catch (e) {
-          // browser may block autoplay
-        }
+    // Track key state for movement and shooting
+    if (event.code === "ArrowLeft" || event.code === "ArrowRight" || event.code === "Space") {
+      keysPressed[event.code] = true;
+      if (event.code === "ArrowLeft" || event.code === "ArrowRight") {
+        lastDirectionKey = event.code;
+      }
+      if (!ourGame.isPaused && !ourGame.gameIsOver) {
+        event.preventDefault();
       }
     }
   });
 
   window.addEventListener("keyup", function (event) {
-    if (!ourGame || !ourGame.player) return;
-
-    if (event.code === "ArrowLeft" || event.code === "ArrowRight") {
-      ourGame.player.speedX = 0;
+    if (event.code === "ArrowLeft" || event.code === "ArrowRight" || event.code === "Space") {
+      keysPressed[event.code] = false;
     }
   });
+
+  window.addEventListener("blur", function () {
+    keysPressed["ArrowLeft"] = false;
+    keysPressed["ArrowRight"] = false;
+    keysPressed["Space"] = false;
+  });
+
+  window.processInput = function () {
+    if (!ourGame || !ourGame.player) return;
+    if (ourGame.isPaused || ourGame.gameIsOver) return;
+
+    var left = keysPressed["ArrowLeft"];
+    var right = keysPressed["ArrowRight"];
+
+    if (left && right) {
+      ourGame.player.speedX = lastDirectionKey === "ArrowLeft" ? -5 : 5;
+    } else if (left) {
+      ourGame.player.speedX = -5;
+    } else if (right) {
+      ourGame.player.speedX = 5;
+    } else {
+      ourGame.player.speedX = 0;
+    }
+
+    if (keysPressed["Space"]) {
+      var now = performance.now();
+      if (now - lastShotTime >= SHOOT_COOLDOWN) {
+        lastShotTime = now;
+        var bulletLeft = ourGame.player.left + ourGame.player.width / 2 - 3;
+        var bulletTop = ourGame.player.top - 10;
+        var newBullet = new Bullet(ourGame.gameScreen, bulletLeft, bulletTop);
+        ourGame.bullets.push(newBullet);
+
+        if (!isSfxMuted) {
+          try {
+            shootSound.currentTime = 0;
+            shootSound.play();
+          } catch (e) {}
+        }
+      }
+    }
+  };
 
   // touch controls
   if (gameScreenElement) {

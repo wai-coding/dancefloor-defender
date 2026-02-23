@@ -147,7 +147,12 @@ class Game {
         if (window.playHighScoreSound) window.playHighScoreSound();
       },
       () => {
-        this.highscoreIndicator.classList.remove("show", "top1");
+        this.highscoreIndicator.classList.remove("show");
+        const removeTop1AfterTransition = () => {
+          this.highscoreIndicator.classList.remove("top1");
+          this.highscoreIndicator.removeEventListener("transitionend", removeTop1AfterTransition);
+        };
+        this.highscoreIndicator.addEventListener("transitionend", removeTop1AfterTransition);
       },
       duration
     );
@@ -483,6 +488,7 @@ class Game {
       this.enemies.push(newEnemy);
     }
 
+    if (window.processInput) window.processInput();
     this.update();
   }
 
@@ -707,38 +713,46 @@ class Game {
 
     this.highScoreContainer.innerHTML = "";
 
-    top10.forEach((entry, index) => {
+    for (let i = 0; i < 10; i++) {
       const li = document.createElement("li");
       li.className = "leaderboard-item";
-      if (index < 3) li.classList.add(`top-${index + 1}`);
-
-      const rank = index + 1;
+      const rank = i + 1;
       const starHtml = rank <= 3 ? `<span class="rank-star">★</span>` : "";
-      const scoreDisplay = String(entry.score).padStart(6, "0");
-      const levelDisplay = "LVL " + String(entry.level).padStart(2, "0");
 
-      if (entry.isPending) {
-        // Render inline input for pending entry (no inline Save - it's in the button group)
-        li.classList.add("pending-row");
-        li.innerHTML = `
-          <span class="rank"><span class="rank-num">${rank}.</span>${starHtml}</span>
-          <input type="text" id="pending-name-input" class="pending-name-input" maxlength="10" placeholder="Name" autocomplete="off" />
-          <span class="leaderboard-score">${scoreDisplay}</span>
-          <span class="leaderboard-level">${levelDisplay}</span>
-        `;
+      if (top10[i]) {
+        if (i < 3) li.classList.add(`top-${i + 1}`);
+        const scoreDisplay = String(top10[i].score).padStart(6, "0");
+        const levelDisplay = "LVL " + String(top10[i].level).padStart(2, "0");
+
+        if (top10[i].isPending) {
+          li.classList.add("pending-row");
+          li.innerHTML = `
+            <span class="rank"><span class="rank-num">${rank}.</span>${starHtml}</span>
+            <input type="text" id="pending-name-input" class="pending-name-input" maxlength="10" placeholder="Name" autocomplete="off" />
+            <span class="leaderboard-score">${scoreDisplay}</span>
+            <span class="leaderboard-level">${levelDisplay}</span>
+          `;
+        } else {
+          const displayName = top10[i].name || "AAA";
+          li.innerHTML = `
+            <span class="rank"><span class="rank-num">${rank}.</span>${starHtml}</span>
+            <span class="leaderboard-name">${this.escapeHtml(displayName)}</span>
+            <span class="leaderboard-score">${scoreDisplay}</span>
+            <span class="leaderboard-level">${levelDisplay}</span>
+          `;
+        }
       } else {
-        // Render normal row
-        const displayName = entry.name || "AAA";
+        li.classList.add("empty-row");
         li.innerHTML = `
           <span class="rank"><span class="rank-num">${rank}.</span>${starHtml}</span>
-          <span class="leaderboard-name">${this.escapeHtml(displayName)}</span>
-          <span class="leaderboard-score">${scoreDisplay}</span>
-          <span class="leaderboard-level">${levelDisplay}</span>
+          <span class="leaderboard-name"></span>
+          <span class="leaderboard-score"></span>
+          <span class="leaderboard-level"></span>
         `;
       }
 
       this.highScoreContainer.appendChild(li);
-    });
+    }
 
     // Focus the input after render
     setTimeout(() => {
@@ -865,29 +879,38 @@ class Game {
 
   renderLeaderboard(scores) {
     this.highScoreContainer.innerHTML = "";
+    const top10 = scores.slice(0, 10);
 
-    scores.forEach((entry, index) => {
+    for (let i = 0; i < 10; i++) {
       const li = document.createElement("li");
       li.className = "leaderboard-item";
-      if (index < 3) li.classList.add(`top-${index + 1}`);
-
-      const rank = index + 1;
+      const rank = i + 1;
       const starHtml = rank <= 3 ? `<span class="rank-star">★</span>` : "";
 
-      // Backward compatibility: use fallback name for old entries
-      const displayName = entry.name || "AAA";
-      const scoreDisplay = String(entry.score).padStart(6, "0");
-      const levelDisplay = "LVL " + String(entry.level).padStart(2, "0");
+      if (top10[i]) {
+        if (i < 3) li.classList.add(`top-${i + 1}`);
+        const displayName = top10[i].name || "AAA";
+        const scoreDisplay = String(top10[i].score).padStart(6, "0");
+        const levelDisplay = "LVL " + String(top10[i].level).padStart(2, "0");
 
-      li.innerHTML = `
-        <span class="rank"><span class="rank-num">${rank}.</span>${starHtml}</span>
-        <span class="leaderboard-name">${this.escapeHtml(displayName)}</span>
-        <span class="leaderboard-score">${scoreDisplay}</span>
-        <span class="leaderboard-level">${levelDisplay}</span>
-      `;
+        li.innerHTML = `
+          <span class="rank"><span class="rank-num">${rank}.</span>${starHtml}</span>
+          <span class="leaderboard-name">${this.escapeHtml(displayName)}</span>
+          <span class="leaderboard-score">${scoreDisplay}</span>
+          <span class="leaderboard-level">${levelDisplay}</span>
+        `;
+      } else {
+        li.classList.add("empty-row");
+        li.innerHTML = `
+          <span class="rank"><span class="rank-num">${rank}.</span>${starHtml}</span>
+          <span class="leaderboard-name"></span>
+          <span class="leaderboard-score"></span>
+          <span class="leaderboard-level"></span>
+        `;
+      }
 
       this.highScoreContainer.appendChild(li);
-    });
+    }
   }
 
   escapeHtml(text) {
