@@ -1,4 +1,23 @@
 window.onload = function () {
+  // Responsive game scaling — keeps 500×600 internal coords, scales visually
+  function updateGameScale() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var scale = Math.min(vw / 500, vh / 600);
+    document.documentElement.style.setProperty('--game-scale', scale);
+  }
+  updateGameScale();
+  window.addEventListener('resize', updateGameScale);
+
+  // Block native browser behaviors (context menu, drag, select) inside game areas
+  ['game-screen', 'intro-game-area', 'end-game-area'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    el.addEventListener('dragstart', function (e) { e.preventDefault(); });
+    el.addEventListener('selectstart', function (e) { e.preventDefault(); });
+  });
+
   const MUSIC_VOLUME = 0.35;
   const SFX_VOLUME = 0.65;
   const MUSIC_GAMEOVER_VOLUME = 0.12;
