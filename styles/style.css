@@ -63,26 +63,26 @@ main {
   overflow: hidden;
 }
 
-/* screen wrappers */
-#game-intro {
-  width: 100%;
+/* screen wrappers — fullscreen flex containers that centre the scaled game area */
+#game-intro,
+#game-container,
+#game-end {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-#game-end {
-  width: 100%;
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
-#game-container {
-  display: none;
-  width: calc(500px * var(--game-scale, 1));
-  height: calc(600px * var(--game-scale, 1));
   overflow: hidden;
+}
+
+#game-intro {
+  /* visible by default */
+}
+
+#game-container,
+#game-end {
+  display: none;
 }
 
 /* Game area */
@@ -92,7 +92,6 @@ main {
   position: relative;
 
   scale: var(--game-scale, 1);
-  transform-origin: 0 0;
 
   background-image: url("../images/background-light.png");
   background-size: cover;
@@ -132,12 +131,13 @@ main {
   pointer-events: none;
 }
 
-/* Intro game area */
+/* Intro game area — same 500×600 base + scale as game-screen */
 #intro-game-area {
-  width: min(100vw, calc(100vh * 5 / 6));
-  width: min(100vw, calc(100dvh * 5 / 6));
-  aspect-ratio: 5 / 6;
+  width: 500px;
+  height: 600px;
   position: relative;
+
+  scale: var(--game-scale, 1);
 
   background-image: url("../images/background-light.png");
   background-size: cover;
@@ -222,11 +222,13 @@ main {
   margin-top: 14px;
 }
 
+/* End game area — same 500×600 base + scale as game-screen */
 #end-game-area {
-  width: min(100vw, calc(100vh * 5 / 6));
-  width: min(100vw, calc(100dvh * 5 / 6));
-  aspect-ratio: 5 / 6;
+  width: 500px;
+  height: 600px;
   position: relative;
+
+  scale: var(--game-scale, 1);
 
   background-image: url("../images/background-light.png");
   background-size: cover;
@@ -272,7 +274,7 @@ main {
 /* Compact mode for Game Over screen to fit without scroll */
 .final-score-text.compact {
   margin: 0 0 6px;
-  font-size: clamp(16px, 2.5vw, 18px);
+  font-size: 18px;
 }
 
 #restart-button {
@@ -607,7 +609,7 @@ main {
 /* Compact mode for congratulations message */
 .top10-message.compact {
   margin: 0 0 4px;
-  font-size: clamp(14px, 3vw, 18px);
+  font-size: 16px;
   max-width: calc(100% - 24px);
   padding: 0 12px;
   overflow-wrap: anywhere;
@@ -1150,7 +1152,7 @@ main {
   max-width: calc(100% - 32px);
   padding: 0 16px;
   box-sizing: border-box;
-  font-size: clamp(14px, 3.5vw, 22px);
+  font-size: 22px;
   font-weight: 900;
   letter-spacing: 0.3px;
   text-transform: uppercase;
@@ -1171,7 +1173,7 @@ main {
 }
 
 #highscore-indicator.top1 {
-  font-size: clamp(13px, 3.2vw, 19px);
+  font-size: 19px;
   letter-spacing: 0.5px;
   color: #fffbe6;
   text-shadow:
