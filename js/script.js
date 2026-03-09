@@ -305,6 +305,8 @@ window.onload = function () {
   const startOptionsBtn = document.getElementById("start-options-button");
   const startHighscoresBtn = document.getElementById("start-highscores-button");
   const startInstructionsBtn = document.getElementById("start-instructions-button");
+  const startAboutBtn = document.getElementById("start-about-button");
+  const startAboutPanel = document.getElementById("start-about-panel");
   const startMuteMusicBtn = document.getElementById("start-mute-music-button");
   const startMuteSoundsBtn = document.getElementById("start-mute-sounds-button");
   const startThemeBtn = document.getElementById("start-theme-button");
@@ -318,6 +320,7 @@ window.onload = function () {
     if (startOptionsPanel) startOptionsPanel.classList.add("hidden");
     if (startHighscoresPanel) startHighscoresPanel.classList.add("hidden");
     if (startInstructionsPanel) startInstructionsPanel.classList.add("hidden");
+    if (startAboutPanel) startAboutPanel.classList.add("hidden");
     if (startMainMenu) startMainMenu.classList.remove("hidden");
   }
 
@@ -387,6 +390,13 @@ window.onload = function () {
   if (startInstructionsBtn) {
     startInstructionsBtn.addEventListener("click", function () {
       showStartSubpanel(startInstructionsPanel);
+      this.blur();
+    });
+  }
+
+  if (startAboutBtn) {
+    startAboutBtn.addEventListener("click", function () {
+      showStartSubpanel(startAboutPanel);
       this.blur();
     });
   }

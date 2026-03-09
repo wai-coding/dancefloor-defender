@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="./styles/style.css" />
     <link rel="icon" type="image/png" href="./images/favicon.png" />
     <script>
-      // Apply stage scale and theme before first paint to prevent flash
+      // Set stage scale and theme before first paint
       (function() {
         var root = document.documentElement;
         var vw = window.innerWidth, vh = window.innerHeight;
@@ -39,6 +39,7 @@
             <button id="start-options-button" class="start-menu-btn start-secondary-btn">Options</button>
             <button id="start-highscores-button" class="start-menu-btn start-secondary-btn">High Scores</button>
             <button id="start-instructions-button" class="start-menu-btn start-secondary-btn">Instructions</button>
+            <button id="start-about-button" class="start-menu-btn start-secondary-btn">About</button>
           </div>
 
           <div id="start-options-panel" class="start-panel start-subpanel hidden">
@@ -65,7 +66,7 @@
               <p class="instructions-intro">
                 Defend the dancefloor from waves of bad DJs!
                 Shoot vinyl records to take them down, survive each wave
-                and reach higher levels. Can you top the leaderboard?
+                and reach higher levels. <span class="instructions-nowrap">Can you top the leaderboard?</span>
               </p>
               <div class="instructions-columns">
                 <div class="instructions-col">
@@ -81,6 +82,22 @@
                   <div class="control-row"><span class="key">Left / Right</span><span class="action">Move</span></div>
                   <div class="control-row"><span class="key">Center tap</span><span class="action">Shoot</span></div>
                 </div>
+              </div>
+            </div>
+            <button class="start-menu-btn start-back-btn" data-back="start-main-menu">Back</button>
+          </div>
+
+          <div id="start-about-panel" class="start-panel start-subpanel hidden">
+            <h1>About</h1>
+            <div class="start-sub-content about-content">
+              <p class="about-description">
+                Hi, I'm Luis, a junior full-stack web developer focused on building interactive and user-friendly web experiences.<br>
+                Dancefloor Defender is one of the projects in my portfolio.
+              </p>
+              <div class="about-links">
+                <a href="https://www.linkedin.com/in/luiscastrocoding/" target="_blank" rel="noopener noreferrer" class="about-link">LinkedIn</a>
+                <a href="https://luiscastro-webdeveloper.netlify.app/" target="_blank" rel="noopener noreferrer" class="about-link">Portfolio</a>
+                <a href="https://github.com/wai-coding" target="_blank" rel="noopener noreferrer" class="about-link">GitHub</a>
               </div>
             </div>
             <button class="start-menu-btn start-back-btn" data-back="start-main-menu">Back</button>

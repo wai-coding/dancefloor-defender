@@ -152,7 +152,7 @@ html[data-theme="dark"] .stage-base {
 }
 
 .start-panel h1 {
-  margin: 20px 0 6px;
+  margin: 10px 0 4px;
   font-size: 32px;
   letter-spacing: 1px;
 }
@@ -206,7 +206,7 @@ html[data-theme="dark"] .stage-base {
 }
 
 #start-button {
-  margin-top: 14px;
+  margin-top: 8px;
 }
 
 .end-panel {
@@ -331,7 +331,7 @@ html[data-theme="dark"] .stage-base {
 #game-logo {
   width: 380px;
   max-width: 100%;
-  margin: 2px auto 2px auto;
+  margin: 2px auto 0 auto;
   display: block;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
 }
@@ -751,10 +751,11 @@ html[data-theme="dark"] .stage-base {
 }
 
 /* Button focus states for accessibility */
-#start-button:focus-visible,
+.start-menu-btn:focus-visible,
 #restart-button:focus-visible,
-#gameover-quit-button:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.8);
+#gameover-quit-button:focus-visible,
+.end-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
   outline-offset: 3px;
 }
 
@@ -818,7 +819,7 @@ html[data-theme="dark"] .stage-base {
 
 #pause-card {
   width: 260px;
-  padding: 28px 24px;
+  padding: 22px 24px;
   border-radius: 12px;
   background: rgba(10, 10, 20, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -827,6 +828,7 @@ html[data-theme="dark"] .stage-base {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 10px;
 }
 
@@ -935,7 +937,7 @@ html[data-theme="dark"] .stage-base {
 .pause-option-btn {
   background: rgba(255, 255, 255, 0.08);
   color: #cbd5e1;
-  font-size: 12px;
+  font-size: 13px;
   box-shadow: none;
 }
 
@@ -946,7 +948,7 @@ html[data-theme="dark"] .stage-base {
 
 /* Start menu sub-panels */
 .start-menu-btn {
-  margin-top: 6px;
+  margin-top: 4px;
   padding: 10px 22px;
   border-radius: 999px;
   border: none;
@@ -982,6 +984,9 @@ html[data-theme="dark"] .stage-base {
 
 .start-secondary-btn:hover {
   background: rgba(255, 255, 255, 0.17);
+  filter: none;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
 
 .start-back-btn {
@@ -1032,11 +1037,16 @@ html[data-theme="dark"] .stage-base {
   opacity: 0.9;
 }
 
+.instructions-nowrap {
+  white-space: nowrap;
+}
+
 .instructions-columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: auto auto;
   gap: 16px;
-  width: 100%;
+  width: fit-content;
+  margin: 0 auto;
   align-items: start;
 }
 
@@ -1054,6 +1064,57 @@ html[data-theme="dark"] .stage-base {
   gap: 10px;
   margin-bottom: 6px;
   width: 100%;
+}
+
+/* About panel layout */
+.about-content {
+  align-items: center;
+  text-align: center;
+  padding: 0 12px;
+}
+
+.about-description {
+  margin: 0 0 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #cbd5e1;
+  opacity: 0.9;
+}
+
+.about-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.about-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: background 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
+  width: 75%;
+  box-sizing: border-box;
+}
+
+.about-link:hover {
+  background: rgba(255, 255, 255, 0.17);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.about-link:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 3px;
 }
 
 .start-leaderboard-container {

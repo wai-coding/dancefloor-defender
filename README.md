@@ -31,8 +31,8 @@ Defend the nightclub dancefloor from waves of bad DJs, shoot vinyl records and s
 **Mobile**
 
 - Left third: Move left
-- Center: Shoot
 - Right third: Move right
+- Center: Shoot
 - Menu button: Pause
 
 ## Tech Stack
@@ -40,5 +40,7 @@ Defend the nightclub dancefloor from waves of bad DJs, shoot vinyl records and s
 - Vanilla JavaScript (ES6 classes, no frameworks)
 - HTML5 + CSS3
 - GitHub Pages
+
+Built as part of my frontend / JavaScript portfolio.
 
 Responsive gameplay tested across desktop, mobile and tablet.
