@@ -1158,3 +1158,29 @@ main {
 .leaderboard-item.empty-row {
   opacity: 0.35;
 }
+
+/* Touch controls overlay — invisible layer with 3 fixed zones */
+#touch-controls-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: none;
+}
+
+/* Enable touch only on mobile / touch devices */
+@media (pointer: coarse) {
+  #touch-controls-layer {
+    pointer-events: auto;
+  }
+}
+
+.touch-zone {
+  flex: 1;
+  height: 100%;
+}

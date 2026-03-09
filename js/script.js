@@ -5,7 +5,6 @@ window.onload = function () {
   var _lastStageHeight = '';
   var _scaleRafPending = false;
   var _gameplayActive = false;
-  var _cachedGameScreenRect = null;
 
   function updateStageScale(force) {
     // During active gameplay, skip unless forced (e.g. orientation change)
@@ -32,8 +31,6 @@ window.onload = function () {
     root.style.setProperty('--stage-scale', scale);
     root.style.setProperty('--stage-width', newWidth);
     root.style.setProperty('--stage-height', newHeight);
-
-    _cachedGameScreenRect = null;
   }
 
   function scheduleScaleUpdate(force) {
@@ -53,16 +50,13 @@ window.onload = function () {
       // Recalculate scale when leaving gameplay
       scheduleScaleUpdate(true);
     }
-    _cachedGameScreenRect = null;
   };
 
   updateStageScale();
   window.addEventListener('resize', function () {
-    _cachedGameScreenRect = null;
     scheduleScaleUpdate();
   });
   window.addEventListener('orientationchange', function () {
-    _cachedGameScreenRect = null;
     // Dimensions may not be ready yet — force update after short delay
     setTimeout(function () { scheduleScaleUpdate(true); }, 150);
   });
@@ -504,10 +498,6 @@ window.onload = function () {
   }
 
   if (pauseMenuButton) {
-    // Prevent touch on game area from accidentally activating the menu button
-    pauseMenuButton.addEventListener("pointerdown", function (e) {
-      e.stopPropagation();
-    });
     pauseMenuButton.addEventListener("click", function () {
       doPauseToggle();
       this.blur();
@@ -641,66 +631,46 @@ window.onload = function () {
     keysPressed["Space"] = false;
   });
 
-  // Touch input
+  // Touch input — simple zone-based system (no pointer capture, no coordinate math)
   var touchLeftPressed = false;
   var touchRightPressed = false;
   var touchShootPressed = false;
   var lastTouchDirection = null;
-  var activePointers = {};
 
-  function recalcTouchState() {
-    touchLeftPressed = false;
-    touchRightPressed = false;
-    touchShootPressed = false;
-    for (var id in activePointers) {
-      if (activePointers[id] === "left") touchLeftPressed = true;
-      if (activePointers[id] === "right") touchRightPressed = true;
-      if (activePointers[id] === "shoot") touchShootPressed = true;
-    }
-  }
+  var touchZoneLeft = document.getElementById("touch-zone-left");
+  var touchZoneCenter = document.getElementById("touch-zone-center");
+  var touchZoneRight = document.getElementById("touch-zone-right");
 
-  if (gameScreenElement) {
-    gameScreenElement.addEventListener("pointerdown", function (event) {
-      if (event.pointerType === "mouse") return;
-      if (!ourGame || !ourGame.player) return;
-      if (ourGame.isPaused || ourGame.gameIsOver) return;
-      if (event.target.closest("#pause-menu-button") || event.target.closest("#pause-overlay")) return;
+  function bindTouchZone(zoneEl, flag) {
+    if (!zoneEl) return;
 
-      event.preventDefault();
-      gameScreenElement.setPointerCapture(event.pointerId);
+    zoneEl.addEventListener("touchstart", function (e) {
+      e.preventDefault();
+      if (flag === "left") { touchLeftPressed = true; lastTouchDirection = "left"; }
+      else if (flag === "right") { touchRightPressed = true; lastTouchDirection = "right"; }
+      else if (flag === "shoot") { touchShootPressed = true; }
+    }, { passive: false });
 
-      var rect = _cachedGameScreenRect || (_cachedGameScreenRect = gameScreenElement.getBoundingClientRect());
-      var relativeX = event.clientX - rect.left;
-      var third = rect.width / 3;
-      var zone;
-
-      if (relativeX < third) {
-        zone = "left";
-        touchLeftPressed = true;
-        lastTouchDirection = "left";
-      } else if (relativeX > 2 * third) {
-        zone = "right";
-        touchRightPressed = true;
-        lastTouchDirection = "right";
-      } else {
-        zone = "shoot";
-        touchShootPressed = true;
+    zoneEl.addEventListener("touchend", function (e) {
+      e.preventDefault();
+      // Only release if no remaining touches on this zone
+      if (e.targetTouches.length === 0) {
+        if (flag === "left") touchLeftPressed = false;
+        else if (flag === "right") touchRightPressed = false;
+        else if (flag === "shoot") touchShootPressed = false;
       }
+    }, { passive: false });
 
-      activePointers[event.pointerId] = zone;
+    zoneEl.addEventListener("touchcancel", function () {
+      if (flag === "left") touchLeftPressed = false;
+      else if (flag === "right") touchRightPressed = false;
+      else if (flag === "shoot") touchShootPressed = false;
     });
-
-    function handlePointerRelease(event) {
-      if (event.pointerType === "mouse") return;
-      try { gameScreenElement.releasePointerCapture(event.pointerId); } catch (e) {}
-      delete activePointers[event.pointerId];
-      recalcTouchState();
-    }
-
-    gameScreenElement.addEventListener("pointerup", handlePointerRelease);
-    gameScreenElement.addEventListener("pointercancel", handlePointerRelease);
-    gameScreenElement.addEventListener("pointerleave", handlePointerRelease);
   }
+
+  bindTouchZone(touchZoneLeft, "left");
+  bindTouchZone(touchZoneCenter, "shoot");
+  bindTouchZone(touchZoneRight, "right");
 
   window.processInput = function () {
     if (!ourGame || !ourGame.player) return;
