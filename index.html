@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="ui-initializing">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
@@ -7,6 +7,20 @@
     <title>Dancefloor Defender</title>
     <link rel="stylesheet" href="./styles/style.css" />
     <link rel="icon" type="image/png" href="./images/favicon.png" />
+    <script>
+      // Apply stage scale and theme before first paint to prevent flash
+      (function() {
+        var root = document.documentElement;
+        var vw = window.innerWidth, vh = window.innerHeight;
+        var scale = Math.min(vw / 500, vh / 600);
+        root.style.setProperty('--stage-scale', scale);
+        root.style.setProperty('--stage-width', (500 * scale) + 'px');
+        root.style.setProperty('--stage-height', (600 * scale) + 'px');
+        if (localStorage.getItem('dancefloor_defender_theme') === 'dark') {
+          root.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
   </head>
 
   <body>
@@ -159,7 +173,7 @@
 
     </main>
 
-    <!-- JS: classes → game → UI/audio -->
+    <!-- JS load order: classes, game, UI/audio -->
     <script src="./js/player.js"></script>
     <script src="./js/enemy.js"></script>
     <script src="./js/bullet.js"></script>

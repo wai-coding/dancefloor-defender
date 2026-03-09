@@ -1,5 +1,5 @@
 window.onload = function () {
-  // Responsive stage scaling — single source of truth for 500×600 base
+  // Responsive stage scaling: single source of truth for 500x600 base
   var _lastStageScale = -1;
   var _lastStageWidth = '';
   var _lastStageHeight = '';
@@ -14,7 +14,7 @@ window.onload = function () {
     var vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     var scale = Math.min(vw / 500, vh / 600);
 
-    // Tolerance check — ignore sub-pixel differences from address-bar resizes
+    // Ignore sub-pixel differences from address-bar resizes
     if (_lastStageScale > 0 && Math.abs(scale - _lastStageScale) < 0.001) return;
 
     var newWidth = (500 * scale) + 'px';
@@ -57,7 +57,7 @@ window.onload = function () {
     scheduleScaleUpdate();
   });
   window.addEventListener('orientationchange', function () {
-    // Dimensions may not be ready yet — force update after short delay
+    // Dimensions may not be ready yet, force update after short delay
     setTimeout(function () { scheduleScaleUpdate(true); }, 150);
   });
 
@@ -116,6 +116,12 @@ window.onload = function () {
     if (gameScreenElement) gameScreenElement.style.backgroundImage = bgUrl;
     if (endGameArea) endGameArea.style.backgroundImage = bgUrl;
 
+    if (isDarkMode) {
+      document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+
     localStorage.setItem(THEME_LS_KEY, isDarkMode ? "dark" : "light");
 
     if (themeButton) {
@@ -146,7 +152,6 @@ window.onload = function () {
   const enemyHitSound = new Audio("./assets/enemy-hit.wav");
   enemyHitSound.volume = SFX_VOLUME;
 
-  // SFX
   const loseLifeSound = new Audio("./assets/lose-life.wav");
   loseLifeSound.volume = SFX_VOLUME;
 
@@ -631,7 +636,7 @@ window.onload = function () {
     keysPressed["Space"] = false;
   });
 
-  // Touch input — simple zone-based system (no pointer capture, no coordinate math)
+  // Fixed touch zones keep mobile input smooth and avoid pointer capture issues
   var touchLeftPressed = false;
   var touchRightPressed = false;
   var touchShootPressed = false;
@@ -711,4 +716,11 @@ window.onload = function () {
       }
     }
   };
+
+  // Remove init guard so button transitions activate normally
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      document.documentElement.classList.remove('ui-initializing');
+    });
+  });
 };

@@ -1,45 +1,44 @@
 # Dancefloor Defender
 
-Retro arcade shooter — defend the nightclub dancefloor from waves of bad DJs.  
-Move, shoot vinyl records, survive. Built from scratch with vanilla JavaScript.
+Retro arcade shooter built from scratch with vanilla JavaScript.
+Defend the nightclub dancefloor from waves of bad DJs, shoot vinyl records and survive.
 
-🕹️ [Live Demo](https://wai-coding.github.io/dancefloor-defender/) · [Repository](https://github.com/wai-coding/dancefloor-defender) · [LinkedIn](https://www.linkedin.com/in/luiscastrocoding/)
+**Live Demo:** [wai-coding.github.io/dancefloor-defender](https://wai-coding.github.io/dancefloor-defender/)  
+**Repository:** [github.com/wai-coding/dancefloor-defender](https://github.com/wai-coding/dancefloor-defender)  
+**LinkedIn:** [linkedin.com/in/luiscastrocoding](https://www.linkedin.com/in/luiscastrocoding/)
 
 ![Dancefloor Defender Screenshot](images/screenshot.png)
 
----
-
 ## Gameplay Highlights
 
-- Progressive difficulty system (arcade ramp from Level 5)
-- Multiple enemy types (standard + 3-hit Angry enemy with dynamic trajectory)
-- Risk/reward Heart power-up mechanic
-- Persistent state via localStorage (scores, theme, audio)
-- Touch-friendly pointer controls (no stuck input)
-- Always-rendered Top 10 leaderboard
-
----
+- Progressive difficulty with arcade-style ramp from Level 5
+- Multiple enemy types (standard + 3-hit Angry with zigzag movement)
+- Risk/reward Heart power-up (shoot it and lose a life)
+- Persistent Top 10 leaderboard via localStorage
+- Touch-friendly mobile controls
+- Dark/light theme and audio preferences saved between sessions
 
 ## Controls
 
-**Keyboard:**
-- `←` / `→` Move
+**Keyboard**
+
+- `← →` Move
 - `Space` Shoot
 - `P` Pause
-- `M` Mute all
-- `L` Toggle theme
+- `M` Mute / Unmute
+- `L` Dark / Light mode
 
-**Mobile:**
+**Mobile**
+
 - Left third: Move left
 - Center: Shoot
 - Right third: Move right
-- Tap menu to pause
-
----
+- Menu button: Pause
 
 ## Tech Stack
 
-- Vanilla JavaScript
-- HTML5
-- CSS3
-- GitHub Pages deployment
+- Vanilla JavaScript (ES6 classes, no frameworks)
+- HTML5 + CSS3
+- GitHub Pages
+
+Responsive gameplay tested across desktop, mobile and tablet.

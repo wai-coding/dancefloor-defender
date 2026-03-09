@@ -64,6 +64,10 @@ class Game {
     this.top10Triggered = false;
     this.top1Triggered = false;
 
+    this._cachedTop1Score = 0;
+    this._cachedTop10Score = null;
+    this._cachedHas10Entries = false;
+
     this.width = 500;
     this.height = 600;
   }
@@ -165,19 +169,20 @@ class Game {
     );
   }
 
-  checkHighScoreMilestonesDuringRun() {
+  cacheHighScores() {
     const scores = JSON.parse(localStorage.getItem("high-scores")) || [];
     scores.sort((a, b) => b.score - a.score);
+    this._cachedTop1Score = scores.length > 0 ? scores[0].score : 0;
+    this._cachedTop10Score = scores.length >= 10 ? scores[9].score : null;
+    this._cachedHas10Entries = scores.length >= 10;
+  }
 
-    const has10Entries = scores.length >= 10;
-    const top1Score = scores.length > 0 ? scores[0].score : 0;
-    const top10Score = has10Entries ? scores[9].score : null;
-
-    if (!this.top1Triggered && this.score > top1Score) {
+  checkHighScoreMilestonesDuringRun() {
+    if (!this.top1Triggered && this.score > this._cachedTop1Score) {
       this.queueTopMilestone("top1");
       this.top1Triggered = true;
-      this.top10Triggered = true; // suppress top10 if top1 fires
-    } else if (has10Entries && !this.top10Triggered && this.score > top10Score) {
+      this.top10Triggered = true;
+    } else if (this._cachedHas10Entries && !this.top10Triggered && this.score > this._cachedTop10Score) {
       this.queueTopMilestone("top10");
       this.top10Triggered = true;
     }
@@ -307,6 +312,7 @@ class Game {
       this.isOverlayActive = false;
       this.top10Triggered = false;
       this.top1Triggered = false;
+      this.cacheHighScores();
 
       // avoid interval stacking
       if (this.gameInterval) {
@@ -372,6 +378,7 @@ class Game {
       this.isOverlayActive = false;
       this.top10Triggered = false;
       this.top1Triggered = false;
+      this.cacheHighScores();
 
       this.gameInterval = setInterval(() => {
         this.gameLoop();

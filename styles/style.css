@@ -25,6 +25,11 @@ body {
   pointer-events: none;
 }
 
+/* Suppress transitions during first render to prevent visual glitches */
+html.ui-initializing .start-menu-btn {
+  transition: none !important;
+}
+
 @keyframes dd-shake {
   0%   { translate: 0 0; }
   20%  { translate: -3px 2px; }
@@ -61,7 +66,7 @@ main {
   overflow: hidden;
 }
 
-/* Screen wrappers — fullscreen flex containers that centre the stage shell */
+/* Screen wrappers: fullscreen flex containers that center the stage shell */
 #game-intro,
 #game-container,
 #game-end {
@@ -78,7 +83,7 @@ main {
   display: none;
 }
 
-/* Scaled stage shell — real computed size for correct flex centering */
+/* Scaled stage shell: computed size for correct flex centering */
 .stage-shell {
   width: var(--stage-width, 500px);
   height: var(--stage-height, 600px);
@@ -89,7 +94,7 @@ main {
   outline-offset: -2px;
 }
 
-/* Stage base — 500×600 internal coords, transform-scaled to fit */
+/* Stage base: 500x600 internal coords, transform-scaled to fit */
 .stage-base {
   width: 500px;
   height: 600px;
@@ -109,12 +114,17 @@ main {
   -webkit-user-drag: none;
 }
 
-/* Gameplay area — disable all touch defaults to prevent scroll/zoom during play */
+/* Dark theme background applied via data attribute for instant render */
+html[data-theme="dark"] .stage-base {
+  background-image: url("../images/background-dark.png");
+}
+
+/* Gameplay area: disable touch defaults to prevent scroll/zoom during play */
 #game-screen {
   touch-action: none;
 }
 
-/* Game entity images — block drag, select, callout */
+/* Game entity images: block drag, select, callout */
 .stage-base img {
   user-select: none;
   -webkit-user-select: none;
@@ -171,21 +181,23 @@ main {
   opacity: 0.85;
 }
 
-/* Visual representation of keyboard keys */
+/* Key/badge indicators for controls */
 .key {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  min-width: 60px;
-  padding: 4px 8px;
+  min-width: 86px;
+  padding: 4px 10px;
   border-radius: 6px;
+  box-sizing: border-box;
 
   border: 1px solid rgba(148, 163, 184, 0.9);
   background: rgba(15, 23, 42, 0.8);
 
   font-size: 12px;
   font-weight: 600;
+  line-height: 1.4;
 }
 
 .action {
@@ -386,6 +398,7 @@ main {
   pointer-events: none;
   z-index: 20;
   transition: opacity 300ms ease-out, transform 300ms ease-out;
+  will-change: transform, opacity;
 }
 
 #level-indicator.show {
@@ -1043,18 +1056,6 @@ main {
   width: 100%;
 }
 
-@media (max-width: 420px) {
-  .instructions-columns {
-    grid-template-columns: 1fr;
-  }
-  .instructions-col {
-    text-align: center;
-  }
-  .instructions-col .control-row {
-    justify-content: center;
-  }
-}
-
 .start-leaderboard-container {
   flex: 1;
   min-height: 0;
@@ -1123,6 +1124,7 @@ main {
   pointer-events: none;
   z-index: 60;
   transition: opacity 400ms ease-out, transform 400ms ease-out;
+  will-change: transform, opacity;
 }
 
 #highscore-indicator.show {
@@ -1135,15 +1137,9 @@ main {
   letter-spacing: 0.5px;
   color: #fffbe6;
   text-shadow:
-    0 0 6px rgba(251, 191, 36, 1),
-    0 0 18px rgba(251, 191, 36, 0.9),
-    0 0 36px rgba(251, 191, 36, 0.6),
-    0 0 60px rgba(249, 115, 22, 0.45),
-    0 0 90px rgba(249, 115, 22, 0.25),
-    -1px -1px 0 rgba(251, 191, 36, 0.7),
-    1px -1px 0 rgba(251, 191, 36, 0.7),
-    -1px 1px 0 rgba(251, 191, 36, 0.7),
-    1px 1px 0 rgba(251, 191, 36, 0.7),
+    0 0 8px rgba(251, 191, 36, 1),
+    0 0 24px rgba(251, 191, 36, 0.7),
+    0 0 48px rgba(249, 115, 22, 0.4),
     0 2px 8px rgba(0, 0, 0, 0.7);
   animation: hs-pulse 700ms ease-in-out 2;
 }
@@ -1159,7 +1155,7 @@ main {
   opacity: 0.35;
 }
 
-/* Touch controls overlay — invisible layer with 3 fixed zones */
+/* Touch controls overlay: invisible layer split into 3 fixed zones */
 #touch-controls-layer {
   position: absolute;
   inset: 0;
