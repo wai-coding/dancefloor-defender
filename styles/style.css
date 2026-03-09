@@ -758,7 +758,7 @@ main {
   z-index: 11;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
   transition: opacity 0.15s ease, transform 0.1s ease, background 0.15s ease;
-  touch-action: none;
+  touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;

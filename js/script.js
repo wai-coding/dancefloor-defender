@@ -1,20 +1,38 @@
 window.onload = function () {
   // Responsive stage scaling — single source of truth for 500×600 base
+  var _lastStageScale = -1;
+  var _scaleRafPending = false;
+
   function updateStageScale() {
     var vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
     var vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     var scale = Math.min(vw / 500, vh / 600);
+
+    // Skip DOM writes if scale hasn't changed (avoids reflow/repaint)
+    if (scale === _lastStageScale) return;
+    _lastStageScale = scale;
+
     var root = document.documentElement;
     root.style.setProperty('--stage-scale', scale);
     root.style.setProperty('--stage-width', (500 * scale) + 'px');
     root.style.setProperty('--stage-height', (600 * scale) + 'px');
   }
-  updateStageScale();
-  window.addEventListener('resize', updateStageScale);
-  window.addEventListener('orientationchange', updateStageScale);
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', updateStageScale);
+
+  function scheduleScaleUpdate() {
+    if (_scaleRafPending) return;
+    _scaleRafPending = true;
+    requestAnimationFrame(function () {
+      _scaleRafPending = false;
+      updateStageScale();
+    });
   }
+
+  updateStageScale();
+  window.addEventListener('resize', scheduleScaleUpdate);
+  window.addEventListener('orientationchange', function () {
+    // Dimensions may not be updated yet after orientation change
+    setTimeout(scheduleScaleUpdate, 120);
+  });
 
   // Block native browser behaviors (context menu, drag, select) inside game areas
   ['game-screen', 'intro-game-area', 'end-game-area'].forEach(function (id) {
@@ -453,6 +471,10 @@ window.onload = function () {
   }
 
   if (pauseMenuButton) {
+    // Prevent touch on game area from accidentally activating the menu button
+    pauseMenuButton.addEventListener("pointerdown", function (e) {
+      e.stopPropagation();
+    });
     pauseMenuButton.addEventListener("click", function () {
       doPauseToggle();
       this.blur();
