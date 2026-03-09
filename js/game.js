@@ -317,6 +317,8 @@ class Game {
       this.gameInterval = setInterval(() => {
         this.gameLoop();
       }, 1000 / 60);
+
+      if (window.setGameplayActive) window.setGameplayActive(true);
     }, 240);
   }
 
@@ -374,10 +376,14 @@ class Game {
       this.gameInterval = setInterval(() => {
         this.gameLoop();
       }, 1000 / 60);
+
+      if (window.setGameplayActive) window.setGameplayActive(true);
     }, 240);
   }
 
   quitToStart() {
+    if (window.setGameplayActive) window.setGameplayActive(false);
+
     if (this.gameInterval) {
       clearInterval(this.gameInterval);
       this.gameInterval = null;
@@ -430,6 +436,7 @@ class Game {
   pause() {
     if (this.gameIsOver || this.isPaused) return;
     this.isPaused = true;
+    if (window.setGameplayActive) window.setGameplayActive(false);
     if (this.gameInterval) {
       clearInterval(this.gameInterval);
       this.gameInterval = null;
@@ -439,6 +446,7 @@ class Game {
   resume() {
     if (this.gameIsOver || !this.isPaused) return;
     this.isPaused = false;
+    if (window.setGameplayActive) window.setGameplayActive(true);
     // prevent ghost movement from held keys
     if (this.player) this.player.speedX = 0;
     if (!this.gameInterval) {
@@ -725,6 +733,8 @@ class Game {
   }
 
   gameOver() {
+    if (window.setGameplayActive) window.setGameplayActive(false);
+
     // Clear overlay queue
     this.overlayQueue = [];
     if (this.levelIndicator) this.levelIndicator.classList.remove("show");

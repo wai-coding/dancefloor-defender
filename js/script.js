@@ -1,37 +1,70 @@
 window.onload = function () {
   // Responsive stage scaling — single source of truth for 500×600 base
   var _lastStageScale = -1;
+  var _lastStageWidth = '';
+  var _lastStageHeight = '';
   var _scaleRafPending = false;
+  var _gameplayActive = false;
+  var _cachedGameScreenRect = null;
 
-  function updateStageScale() {
+  function updateStageScale(force) {
+    // During active gameplay, skip unless forced (e.g. orientation change)
+    if (_gameplayActive && !force) return;
+
     var vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
     var vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     var scale = Math.min(vw / 500, vh / 600);
 
-    // Skip DOM writes if scale hasn't changed (avoids reflow/repaint)
-    if (scale === _lastStageScale) return;
+    // Tolerance check — ignore sub-pixel differences from address-bar resizes
+    if (_lastStageScale > 0 && Math.abs(scale - _lastStageScale) < 0.001) return;
+
+    var newWidth = (500 * scale) + 'px';
+    var newHeight = (600 * scale) + 'px';
+
+    // Skip DOM writes if computed values are identical
+    if (newWidth === _lastStageWidth && newHeight === _lastStageHeight) return;
+
     _lastStageScale = scale;
+    _lastStageWidth = newWidth;
+    _lastStageHeight = newHeight;
 
     var root = document.documentElement;
     root.style.setProperty('--stage-scale', scale);
-    root.style.setProperty('--stage-width', (500 * scale) + 'px');
-    root.style.setProperty('--stage-height', (600 * scale) + 'px');
+    root.style.setProperty('--stage-width', newWidth);
+    root.style.setProperty('--stage-height', newHeight);
+
+    _cachedGameScreenRect = null;
   }
 
-  function scheduleScaleUpdate() {
-    if (_scaleRafPending) return;
+  function scheduleScaleUpdate(force) {
+    if (_scaleRafPending && !force) return;
     _scaleRafPending = true;
+    var f = !!force;
     requestAnimationFrame(function () {
       _scaleRafPending = false;
-      updateStageScale();
+      updateStageScale(f);
     });
   }
 
+  // Expose gameplay guard for game.js
+  window.setGameplayActive = function (active) {
+    _gameplayActive = !!active;
+    if (!active) {
+      // Recalculate scale when leaving gameplay
+      scheduleScaleUpdate(true);
+    }
+    _cachedGameScreenRect = null;
+  };
+
   updateStageScale();
-  window.addEventListener('resize', scheduleScaleUpdate);
+  window.addEventListener('resize', function () {
+    _cachedGameScreenRect = null;
+    scheduleScaleUpdate();
+  });
   window.addEventListener('orientationchange', function () {
-    // Dimensions may not be updated yet after orientation change
-    setTimeout(scheduleScaleUpdate, 120);
+    _cachedGameScreenRect = null;
+    // Dimensions may not be ready yet — force update after short delay
+    setTimeout(function () { scheduleScaleUpdate(true); }, 150);
   });
 
   // Block native browser behaviors (context menu, drag, select) inside game areas
@@ -636,7 +669,7 @@ window.onload = function () {
       event.preventDefault();
       gameScreenElement.setPointerCapture(event.pointerId);
 
-      var rect = gameScreenElement.getBoundingClientRect();
+      var rect = _cachedGameScreenRect || (_cachedGameScreenRect = gameScreenElement.getBoundingClientRect());
       var relativeX = event.clientX - rect.left;
       var third = rect.width / 3;
       var zone;

@@ -100,12 +100,18 @@ main {
   background-size: cover;
   background-position: center;
   overflow: hidden;
-  touch-action: none;
+  touch-action: manipulation;
+  will-change: transform;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-drag: none;
+}
+
+/* Gameplay area — disable all touch defaults to prevent scroll/zoom during play */
+#game-screen {
+  touch-action: none;
 }
 
 /* Game entity images — block drag, select, callout */
