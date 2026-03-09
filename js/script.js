@@ -1,13 +1,20 @@
 window.onload = function () {
-  // Responsive game scaling — keeps 500×600 internal coords, scales visually
-  function updateGameScale() {
-    var vw = window.innerWidth;
-    var vh = window.innerHeight;
+  // Responsive stage scaling — single source of truth for 500×600 base
+  function updateStageScale() {
+    var vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+    var vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     var scale = Math.min(vw / 500, vh / 600);
-    document.documentElement.style.setProperty('--game-scale', scale);
+    var root = document.documentElement;
+    root.style.setProperty('--stage-scale', scale);
+    root.style.setProperty('--stage-width', (500 * scale) + 'px');
+    root.style.setProperty('--stage-height', (600 * scale) + 'px');
   }
-  updateGameScale();
-  window.addEventListener('resize', updateGameScale);
+  updateStageScale();
+  window.addEventListener('resize', updateStageScale);
+  window.addEventListener('orientationchange', updateStageScale);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateStageScale);
+  }
 
   // Block native browser behaviors (context menu, drag, select) inside game areas
   ['game-screen', 'intro-game-area', 'end-game-area'].forEach(function (id) {

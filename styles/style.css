@@ -26,12 +26,12 @@ body {
 }
 
 @keyframes dd-shake {
-  0%   { transform: translate(0, 0); }
-  20%  { transform: translate(-3px, 2px); }
-  40%  { transform: translate(3px, -2px); }
-  60%  { transform: translate(-2px, 3px); }
-  80%  { transform: translate(2px, -1px); }
-  100% { transform: translate(0, 0); }
+  0%   { translate: 0 0; }
+  20%  { translate: -3px 2px; }
+  40%  { translate: 3px -2px; }
+  60%  { translate: -2px 3px; }
+  80%  { translate: 2px -1px; }
+  100% { translate: 0 0; }
 }
 
 .shake {
@@ -54,30 +54,23 @@ body {
 }
 
 main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-}
-
-/* screen wrappers — fullscreen flex containers that centre the scaled game area */
-#game-intro,
-#game-container,
-#game-end {
+  position: relative;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
+  overflow: hidden;
+}
+
+/* Screen wrappers — fullscreen flex containers that centre the stage shell */
+#game-intro,
+#game-container,
+#game-end {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-}
-
-#game-intro {
-  /* visible by default */
 }
 
 #game-container,
@@ -85,23 +78,28 @@ main {
   display: none;
 }
 
-/* Game area */
-#game-screen {
+/* Scaled stage shell — real computed size for correct flex centering */
+.stage-shell {
+  width: var(--stage-width, 500px);
+  height: var(--stage-height, 600px);
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  outline: 2px solid #111;
+  outline-offset: -2px;
+}
+
+/* Stage base — 500×600 internal coords, transform-scaled to fit */
+.stage-base {
   width: 500px;
   height: 600px;
   position: relative;
-
-  scale: var(--game-scale, 1);
-
+  transform: scale(var(--stage-scale, 1));
+  transform-origin: 0 0;
   background-image: url("../images/background-light.png");
   background-size: cover;
   background-position: center;
-
-  border: 2px solid #111;
-  border-radius: 6px;
-
   overflow: hidden;
-
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
@@ -110,42 +108,13 @@ main {
   -webkit-user-drag: none;
 }
 
-/* Shared touch protection for game areas */
-#intro-game-area,
-#end-game-area {
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-user-drag: none;
-}
-
 /* Game entity images — block drag, select, callout */
-#game-screen img,
-#intro-game-area img,
-#end-game-area img {
+.stage-base img {
   user-select: none;
   -webkit-user-select: none;
   -webkit-user-drag: none;
   -webkit-touch-callout: none;
   pointer-events: none;
-}
-
-/* Intro game area — same 500×600 base + scale as game-screen */
-#intro-game-area {
-  width: 500px;
-  height: 600px;
-  position: relative;
-
-  scale: var(--game-scale, 1);
-
-  background-image: url("../images/background-light.png");
-  background-size: cover;
-  background-position: center;
-
-  border: 2px solid #111;
-  border-radius: 6px;
-  overflow: hidden;
 }
 
 .start-panel {
@@ -220,23 +189,6 @@ main {
 
 #start-button {
   margin-top: 14px;
-}
-
-/* End game area — same 500×600 base + scale as game-screen */
-#end-game-area {
-  width: 500px;
-  height: 600px;
-  position: relative;
-
-  scale: var(--game-scale, 1);
-
-  background-image: url("../images/background-light.png");
-  background-size: cover;
-  background-position: center;
-
-  border: 2px solid #111;
-  border-radius: 6px;
-  overflow: hidden;
 }
 
 .end-panel {
